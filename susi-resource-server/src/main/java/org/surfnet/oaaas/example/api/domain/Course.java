@@ -18,72 +18,78 @@
  */
 package org.surfnet.oaaas.example.api.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 /**
  * Course representation
  * 
  */
+@JsonIgnoreProperties
 public class Course {
-  private String id;
-  private String institution;
-  private String name;
-  private String workload;
-  private String ECTS;
-  private String group;
-  private String teacher; 
+	private String id;
+	private String institution;
+	private String name;
+	private String workload;
 
-  public String getId() {
-    return id;
-  }
+	@JsonProperty("ЕСТК")
+	private String ECTS;
+	private String group;
+	private String teacher;
 
-  public void setId(String id) {
-    this.id = id;
-  }
+	public String getId() {
+		return id;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public String getName() {
+		return name;
+	}
 
-public String getInstitution() {
-	return institution;
-}
+	public void setName(String name) {
+		this.name = name;
+	}
 
-public void setInstitution(String institution) {
-	this.institution = institution;
-}
+	public String getInstitution() {
+		return institution;
+	}
 
-public String getWorkload() {
-	return workload;
-}
+	public void setInstitution(String institution) {
+		this.institution = institution;
+	}
 
-public void setWorkload(String workload) {
-	this.workload = workload;
-}
+	public String getWorkload() {
+		return workload;
+	}
 
-public String getECTS() {
-	return ECTS;
-}
+	public void setWorkload(String workload) {
+		this.workload = workload;
+	}
 
-public void setECTS(String eCTS) {
-	ECTS = eCTS;
-}
+	public String getGroup() {
+		return group;
+	}
 
-public String getGroup() {
-	return group;
-}
+	public void setGroup(String group) {
+		this.group = group;
+	}
 
-public void setGroup(String group) {
-	this.group = group;
-}
+	public String getTeacher() {
+		return teacher;
+	}
 
-public String getTeacher() {
-	return teacher;
-}
+	public void setTeacher(String teacher) {
+		this.teacher = teacher;
+	}
 
-public void setTeacher(String teacher) {
-	this.teacher = teacher;
-}
+	public String getECTS() {
+		return ECTS;
+	}
+
+	public void setECTS(String eCTS) {
+		ECTS = eCTS;
+	}
 }

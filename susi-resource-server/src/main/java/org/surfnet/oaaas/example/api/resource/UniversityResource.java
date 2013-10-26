@@ -134,7 +134,7 @@ public class UniversityResource {
 			@PathParam("id") long id) {
 		List<Teacher> teachers = university.getTeachers();
 		for (Teacher teacher : teachers) {
-			if (teacher.getId().equals(id)) {
+			if (teacher.getTeacherId().equals(id)) {
 				return Response.ok(teacher).build();
 			}
 		}

@@ -16,7 +16,7 @@
     <version>1.3.5-SNAPSHOT</version>
   </parent>
 
-  <artifactId>apis-example-resource-server</artifactId>
+  <artifactId>susi-resource-server</artifactId>
   <packaging>jar</packaging>
   <name>API Secure - example resource server</name>
 

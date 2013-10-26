@@ -64,11 +64,11 @@
 
   <modules>
     <module>apis-resource-server-library</module>
-    <module>apis-example-resource-server</module>
+    <module>susi-resource-server</module>
     <module>apis-authorization-server</module>
     <module>apis-authorization-server-war</module>
     <module>apis-surfconext-authn</module>
-    <module>apis-example-resource-server-war</module>
+    <module>susi-resource-server-war</module>
     <module>apis-example-client-app</module>
     <module>apis-openconext-mock-war</module>
   </modules>

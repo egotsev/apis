@@ -20,48 +20,45 @@ package org.surfnet.oaaas.example.api.domain;
 
 /**
  * Student representation
- *
+ * 
  */
 public class Student {
 
-  private String id;
-  private String  name;
-  private String  email;
-  
-  /**
-   * @return the id
-   */
-  public String getId() {
-    return id;
-  }
-  /**
-   * @param id the id to set
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-  /**
-   * @param name the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
-  /**
-   * @return the email
-   */
-  public String getEmail() {
-    return email;
-  }
-  /**
-   * @param email the email to set
-   */
-  public void setEmail(String email) {
-    this.email = email;
-  }
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getSecondName() {
+		return secondName;
+	}
+
+	public void setSecondName(String secondName) {
+		this.secondName = secondName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getFacultyNumber() {
+		return facultyNumber;
+	}
+
+	public void setFacultyNumber(String facultyNumber) {
+		this.facultyNumber = facultyNumber;
+	}
+
+	private String firstName;
+	private String secondName;
+	private String lastName;
+	private String facultyNumber;
+
 }

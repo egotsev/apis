@@ -24,51 +24,66 @@ package org.surfnet.oaaas.example.api.domain;
  */
 public class Course {
   private String id;
+  private String institution;
   private String name;
-  private String description;
+  private String workload;
+  private String ECTS;
+  private String group;
+  private String teacher; 
 
-  /**
-   * @return the id
-   */
   public String getId() {
     return id;
   }
 
-  /**
-   * @param id
-   *          the id to set
-   */
   public void setId(String id) {
     this.id = id;
   }
 
-  /**
-   * @return the name
-   */
   public String getName() {
     return name;
   }
 
-  /**
-   * @param name
-   *          the name to set
-   */
   public void setName(String name) {
     this.name = name;
   }
 
-  /**
-   * @return the description
-   */
-  public String getDescription() {
-    return description;
-  }
+public String getInstitution() {
+	return institution;
+}
 
-  /**
-   * @param description
-   *          the description to set
-   */
-  public void setDescription(String description) {
-    this.description = description;
-  }
+public void setInstitution(String institution) {
+	this.institution = institution;
+}
+
+public String getWorkload() {
+	return workload;
+}
+
+public void setWorkload(String workload) {
+	this.workload = workload;
+}
+
+public String getECTS() {
+	return ECTS;
+}
+
+public void setECTS(String eCTS) {
+	ECTS = eCTS;
+}
+
+public String getGroup() {
+	return group;
+}
+
+public void setGroup(String group) {
+	this.group = group;
+}
+
+public String getTeacher() {
+	return teacher;
+}
+
+public void setTeacher(String teacher) {
+	this.teacher = teacher;
+}
 }

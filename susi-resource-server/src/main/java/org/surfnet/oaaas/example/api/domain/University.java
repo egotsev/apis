@@ -25,53 +25,41 @@ import java.util.List;
  * 
  */
 public class University {
-  private String name;
-  private List<Student> students;
-  private List<Course> courses;
+	private String name;
+	private List<Student> students;
+	private List<Course> courses;
+	private List<Teacher> teachers;
 
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
+	public String getName() {
+		return name;
+	}
 
-  /**
-   * @param name
-   *          the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  /**
-   * @return the students
-   */
-  public List<Student> getStudents() {
-    return students;
-  }
+	public List<Student> getStudents() {
+		return students;
+	}
 
-  /**
-   * @param students
-   *          the students to set
-   */
-  public void setStudents(List<Student> students) {
-    this.students = students;
-  }
+	public void setStudents(List<Student> students) {
+		this.students = students;
+	}
 
-  /**
-   * @return the courses
-   */
-  public List<Course> getCourses() {
-    return courses;
-  }
+	public List<Course> getCourses() {
+		return courses;
+	}
 
-  /**
-   * @param courses
-   *          the courses to set
-   */
-  public void setCourses(List<Course> courses) {
-    this.courses = courses;
-  }
+	public void setCourses(List<Course> courses) {
+		this.courses = courses;
+	}
+
+	public List<Teacher> getTeachers() {
+		return teachers;
+	}
+
+	public void setTeachers(List<Teacher> teachers) {
+		this.teachers = teachers;
+	}
 
 }

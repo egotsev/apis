@@ -33,8 +33,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.surfnet.oaaas.example.api.domain.Course;
 import org.surfnet.oaaas.example.api.domain.Student;
+import org.surfnet.oaaas.example.api.domain.Teacher;
 import org.surfnet.oaaas.example.api.domain.University;
 
+import com.google.common.base.Optional;
 import com.yammer.dropwizard.auth.Auth;
 import com.yammer.metrics.annotation.Timed;
 
@@ -47,76 +49,96 @@ import com.yammer.metrics.annotation.Timed;
 @Produces(MediaType.APPLICATION_JSON)
 public class UniversityResource {
 
-  private static final String UNIVERSITY_FOO_JSON = "university-foo-data.json";
+	private static final String UNIVERSITY_FOO_JSON = "university-foo-data.json";
 
-  private final ObjectMapper objectMapper = new ObjectMapper().enable(
-      DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY).setSerializationInclusion(
-      JsonSerialize.Inclusion.NON_NULL);
+	private final ObjectMapper objectMapper = new ObjectMapper().enable(
+			DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+			.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 
-  private University university;
+	private University university;
 
-  public UniversityResource() {
-    super();
-    init();
-  }
+	public UniversityResource() {
+		super();
+		init();
+	}
 
-  private void init() {
-    try {
-      university = getObjectMapper().readValue(
-          Thread.currentThread().getContextClassLoader().getResourceAsStream(UNIVERSITY_FOO_JSON), University.class);
-    } catch (Exception e) {
-      throw new RuntimeException(String.format("Unable to parse %s", UNIVERSITY_FOO_JSON), e);
-    }
-  }
+	private void init() {
+		try {
+			university = getObjectMapper().readValue(
+					Thread.currentThread().getContextClassLoader()
+							.getResourceAsStream(UNIVERSITY_FOO_JSON),
+					University.class);
+		} catch (Exception e) {
+			throw new RuntimeException(String.format("Unable to parse %s",
+					UNIVERSITY_FOO_JSON), e);
+		}
+	}
 
-  protected ObjectMapper getObjectMapper() {
-    return objectMapper;
-  }
+	protected ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
 
-  @GET
-  @Timed
-  @Path("/student")
-  public Response getAllStudents(@Auth
-  Principal principal) {
-    return Response.ok(university.getStudents()).build();
-  }
+	@GET
+	@Timed
+	@Path("/students")
+	public Response getAllStudents(@Auth Principal principal) {
+		return Response.ok(university.getStudents()).build();
+	}
 
-  @GET
-  @Timed
-  @Path("/student/{studentId}")
-  public Response getStudentById(@Auth
-  Principal principal, @PathParam("studentId")
-  String id) {
-    List<Student> students = university.getStudents();
-    for (Student student : students) {
-      if (student.getId().equals(id)) {
-        return Response.ok(student).build();
-      }
-    }
-    return Response.status(Response.Status.NOT_FOUND).build();
-  }
+	@GET
+	@Timed
+	@Path("/students/{facultyNumber}")
+	public Response getStudentById(@Auth Principal principal,
+			@PathParam("facultyNumber") String facNumber) {
+		List<Student> students = university.getStudents();
+		for (Student student : students) {
+			if (student.getFacultyNumber().equals(facNumber)) {
+				return Response.ok(student).build();
+			}
+		}
+		return Response.status(Response.Status.NOT_FOUND).build();
+	}
 
-  @GET
-  @Timed
-  @Path("/course")
-  public Response getAllCourses(@Auth
-  Principal principal) {
-    return Response.ok(university.getCourses()).build();
-  }
+	@GET
+	@Timed
+	@Path("/courses")
+	public Response getAllCourses(@Auth Principal principal) {
+		return Response.ok(university.getCourses()).build();
+	}
 
-  @GET
-  @Timed
-  @Path("/course/{courseId}")
-  public Response getCourseById(@Auth
-  Principal principal, @PathParam("courseId")
-  String id) {
-    List<Course> courses = university.getCourses();
-    for (Course course : courses) {
-      if (course.getId().equals(id)) {
-        return Response.ok(course).build();
-      }
-    }
-    return Response.status(Response.Status.NOT_FOUND).build();
-  }
+	@GET
+	@Timed
+	@Path("/courses/{courseId}")
+	public Response getCourseById(@Auth Principal principal,
+			@PathParam("courseId") String id) {
+		List<Course> courses = university.getCourses();
+		for (Course course : courses) {
+			if (course.getId().equals(id)) {
+				return Response.ok(course).build();
+			}
+		}
+		return Response.status(Response.Status.NOT_FOUND).build();
+	}
+
+	@GET
+	@Timed
+	@Path("/teachers")
+	public Response getAllTeachers(@Auth Principal principal) {
+		return Response.ok(university.getTeachers()).build();
+	}
+
+	@GET
+	@Timed
+	@Path("/teachers/{teacherId}")
+	public Response getTeacherById(@Auth Principal principal,
+			@PathParam("id") long id) {
+		List<Teacher> teachers = university.getTeachers();
+		for (Teacher teacher : teachers) {
+			if (teacher.getId().equals(id)) {
+				return Response.ok(teacher).build();
+			}
+		}
+		return Response.status(Response.Status.NOT_FOUND).build();
+	}
 
 }

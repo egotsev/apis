@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.surfnet.oaaas.auth.principal.AuthenticatedPrincipal;
 import org.surfnet.oaaas.example.api.domain.Course;
 import org.surfnet.oaaas.example.api.domain.Student;
 import org.surfnet.oaaas.example.api.domain.Teacher;
@@ -90,6 +91,11 @@ public class UniversityResource {
 	@Path("/students/{facultyNumber}")
 	public Response getStudentById(@Auth Principal principal,
 			@PathParam("facultyNumber") String facNumber) {
+		AuthenticatedPrincipal authPrincipal;
+		if (principal instanceof AuthenticatedPrincipal) {
+			authPrincipal = (AuthenticatedPrincipal) principal;
+		}
+		//TODO future development
 		List<Student> students = university.getStudents();
 		for (Student student : students) {
 			if (student.getFacultyNumber().equals(facNumber)) {
@@ -111,6 +117,11 @@ public class UniversityResource {
 	@Path("/courses/{courseId}")
 	public Response getCourseById(@Auth Principal principal,
 			@PathParam("courseId") String id) {
+		AuthenticatedPrincipal authPrincipal;
+		if (principal instanceof AuthenticatedPrincipal) {
+			authPrincipal = (AuthenticatedPrincipal) principal;
+		}
+		//TODO future development
 		List<Course> courses = university.getCourses();
 		for (Course course : courses) {
 			if (course.getId().equals(id)) {
@@ -132,6 +143,11 @@ public class UniversityResource {
 	@Path("/teachers/{teacherId}")
 	public Response getTeacherById(@Auth Principal principal,
 			@PathParam("id") long id) {
+		AuthenticatedPrincipal authPrincipal;
+		if (principal instanceof AuthenticatedPrincipal) {
+			authPrincipal = (AuthenticatedPrincipal) principal;
+		}
+		//TODO future development
 		List<Teacher> teachers = university.getTeachers();
 		for (Teacher teacher : teachers) {
 			if (teacher.getId().equals(id)) {

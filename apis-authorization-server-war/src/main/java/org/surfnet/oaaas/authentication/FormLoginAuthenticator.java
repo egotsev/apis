@@ -60,6 +60,8 @@ public class FormLoginAuthenticator extends AbstractAuthenticator {
 		if (request.getMethod().equals("POST")) {
 			processForm(request);
 			chain.doFilter(request, response);
+			
+			//TODO parse id, exception?
 		} else if (principal != null) {
 			// we stil have the session
 			setAuthStateValue(request, authStateValue);
@@ -91,8 +93,13 @@ public class FormLoginAuthenticator extends AbstractAuthenticator {
 		setAuthStateValue(request, request.getParameter(AUTH_STATE));
 		AuthenticatedPrincipal principal = new AuthenticatedPrincipal(
 				request.getParameter("j_username"));
+
 		request.getSession().setAttribute(SESSION_IDENTIFIER, principal);
 		setPrincipal(request, principal);
 	}
 
+	private boolean isValidUser(String username, String password) {
+		return true;
+	}
+	
 }

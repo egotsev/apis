@@ -31,13 +31,11 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.surfnet.oaaas.auth.principal.AuthenticatedPrincipal;
 import org.surfnet.oaaas.example.api.domain.Course;
 import org.surfnet.oaaas.example.api.domain.Student;
 import org.surfnet.oaaas.example.api.domain.Teacher;
 import org.surfnet.oaaas.example.api.domain.University;
 
-import com.google.common.base.Optional;
 import com.yammer.dropwizard.auth.Auth;
 import com.yammer.metrics.annotation.Timed;
 
@@ -51,9 +49,7 @@ import com.yammer.metrics.annotation.Timed;
 public class UniversityResource {
 
 	private static final String UNIVERSITY_FOO_JSON = "university-foo-data.json";
-	private static final String FACULTY_NUMBER = "FACULTY_NUMBER";
-	private static final String GROUP_STUDENT = "student";
-
+	
 	private final ObjectMapper objectMapper = new ObjectMapper().enable(
 			DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
 			.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
@@ -85,13 +81,6 @@ public class UniversityResource {
 	@Timed
 	@Path("/students")
 	public Response getAllStudents(@Auth Principal principal) {
-		AuthenticatedPrincipal authPrincipal = null;
-		if (principal instanceof AuthenticatedPrincipal) {
-			authPrincipal = (AuthenticatedPrincipal) principal;
-		}
-		if (authPrincipal != null && authPrincipal.getGroups().contains(GROUP_STUDENT)) {
-			return Response.status(Response.Status.FORBIDDEN).build();
-		}
 		return Response.ok(university.getStudents()).build();
 	}
 
@@ -100,22 +89,12 @@ public class UniversityResource {
 	@Path("/students/{facultyNumber}")
 	public Response getStudentById(@Auth Principal principal,
 			@PathParam("facultyNumber") String facNumber) {
-		AuthenticatedPrincipal authPrincipal = null;
-		if (principal instanceof AuthenticatedPrincipal) {
-			authPrincipal = (AuthenticatedPrincipal) principal;
-		}
-		if (authPrincipal != null && authPrincipal.getGroups().contains(GROUP_STUDENT)) {
-			if (authPrincipal.getAttribute(FACULTY_NUMBER) == facNumber) {
 				List<Student> students = university.getStudents();
 				for (Student student : students) {
 					if (student.getFacultyNumber().equals(facNumber)) {
 						return Response.ok(student).build();
 					}
 				}
-			} else {
-				return Response.status(Response.Status.FORBIDDEN).build();
-			}
-		}
 		return Response.status(Response.Status.NOT_FOUND).build();
 	}
 

@@ -2,11 +2,13 @@ appname: 'sample_client'
 layout: 'main'
 charset: 'UTF-8'
 template: 'simple'
+session: 'simple'
 
 oauth:
-  url: 'http://localhost:8080/oauth2/authorize'
+  auth_url: 'http://localhost:8080/oauth2/authorize'
+  token_url: 'http://localhost:8080/oauth2/token'
   response_type: 'code'
   client_id: 'sample-client'
-  client_secret: 'secret'
-  redirect_uri: 'http://localhost:3000/dashboard'
+  client_secret: '61876f48-a312-4daf-9b05-054da7db7dba'
+  redirect_uri: 'http://localhost:3000/susi_oauth'
 

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="susi-resource-server-war">
-        <property name="context-root" value="susi-resource-server-war"/>
-        <property name="java-output-path" value="/susi-resource-server-war/target/classes"/>
-    </wb-module>
-</project-modules>

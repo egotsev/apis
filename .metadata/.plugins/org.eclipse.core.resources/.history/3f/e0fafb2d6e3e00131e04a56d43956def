@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="apis-example-resource-server-war">
-        <property name="context-root" value="apis-example-resource-server-war"/>
-    </wb-module>
-</project-modules>

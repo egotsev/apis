@@ -22,7 +22,7 @@
 
 	<div class="head">
 		<img
-			src="${pageContext.request.contextPath}/client/img/surf-oauth.png" />
+			src="${pageContext.request.contextPath}/client/img/susi.png" />
 	</div>
 	<div class="main">
 		<div class="full">
@@ -36,11 +36,13 @@
 
 			<div class="consent">
 				<img alt="${client.name}" title="${client.name}"
-					src="${client.thumbNailUrl}" /> <img
-					src="${pageContext.request.contextPath}/client/img/arrow.png" /> <img
+					src="${client.thumbNailUrl}" /> 
+				<img
+					src="${pageContext.request.contextPath}/client/img/arrow.png" /> 
+				<img
 					alt="${client.resourceServer.name}"
 					title="${client.resourceServer.name}"
-					src="${client.resourceServer.thumbNailUrl}" />
+					src="${pageContext.request.contextPath}/client/img/uni.jpg" />
 			</div>
 
 			<form id="accept" method="post"
@@ -53,7 +55,7 @@
 					<c:forEach items="${client.scopes}" var="availableScope">
 						<input type="hidden" id="GRANTED_SCOPES" name="GRANTED_SCOPES"
 							<c:out value="${checked}"/> value="${availableScope}" />
-						<span class="consent-label">${availableScope}</span>
+						<h4>* ${availableScope}</h4>
 						<hr />
 					</c:forEach>
 				</fieldset>

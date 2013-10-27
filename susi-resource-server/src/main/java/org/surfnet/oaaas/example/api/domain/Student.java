@@ -18,10 +18,13 @@
  */
 package org.surfnet.oaaas.example.api.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 /**
  * Student representation
  * 
  */
+@JsonIgnoreProperties
 public class Student {
 
 	public String getFirstName() {

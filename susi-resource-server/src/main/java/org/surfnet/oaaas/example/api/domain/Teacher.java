@@ -1,21 +1,16 @@
 package org.surfnet.oaaas.example.api.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+@JsonIgnoreProperties
 public class Teacher {
-	private Long id;
+	private Long teacherId;
 	private String teacherName;
 	private String teacherTitle;
 	private String teacherEmail;
 	private String department;
-	private String teacherFullName;
+	private String teacherFullname;
 	private String teacherPosition;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getTeacherName() {
 		return teacherName;
@@ -49,19 +44,27 @@ public class Teacher {
 		this.department = department;
 	}
 
-	public String getTeacherFullName() {
-		return teacherFullName;
-	}
-
-	public void setTeacherFullName(String teacherFullName) {
-		this.teacherFullName = teacherFullName;
-	}
-
 	public String getTeacherPosition() {
 		return teacherPosition;
 	}
 
 	public void setTeacherPosition(String teacherPosition) {
 		this.teacherPosition = teacherPosition;
+	}
+
+	public Long getTeacherId() {
+		return teacherId;
+	}
+
+	public void setTeacherId(Long teacherId) {
+		this.teacherId = teacherId;
+	}
+
+	public String getTeacherFullname() {
+		return teacherFullname;
+	}
+
+	public void setTeacherFullname(String teacherFullname) {
+		this.teacherFullname = teacherFullname;
 	}
 }

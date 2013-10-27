@@ -150,7 +150,7 @@ public class UniversityResource {
 		//TODO future development
 		List<Teacher> teachers = university.getTeachers();
 		for (Teacher teacher : teachers) {
-			if (teacher.getId().equals(id)) {
+			if (teacher.getTeacherId().equals(id)) {
 				return Response.ok(teacher).build();
 			}
 		}

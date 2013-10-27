@@ -12,6 +12,13 @@
     </head>
 
     <body>
-        <% content %>
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="brand">Sample Client</div>
+            </div>
+        </div>
+        <div class="content">
+            <% content %>
+        </div>
     </body>
 </html>

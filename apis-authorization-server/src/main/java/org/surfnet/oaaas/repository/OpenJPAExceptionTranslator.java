@@ -24,28 +24,32 @@ import org.slf4j.LoggerFactory;
 
 public class OpenJPAExceptionTranslator implements ExceptionTranslator {
 
-  private static final Logger LOG = LoggerFactory.getLogger(OpenJPAExceptionTranslator.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(OpenJPAExceptionTranslator.class);
 
-  @Override
-  public Exception translate(Throwable e) {
-    if (e.getCause() != null && isRelevantCause(e.getCause())) {
-      return translate(e.getCause());
-    }
-    Class<? extends Throwable> c = e.getClass();
-    if (c.equals(org.apache.openjpa.persistence.EntityExistsException.class)) {
-      return new javax.persistence.EntityExistsException(e.getMessage(), e);
-    } else if (c.equals(javax.validation.ConstraintViolationException.class)) {
-      return (Exception) e;
-    }
-    LOG.info("Cannot translate '{}' to specific subtype, will return generic PersistenceException",
-        e.getClass().getName());
-    return new PersistenceException(e);
-  }
+	@Override
+	public Exception translate(Throwable e) {
+		if (e.getCause() != null && isRelevantCause(e.getCause())) {
+			return translate(e.getCause());
+		}
+		Class<? extends Throwable> c = e.getClass();
+		if (c.equals(org.apache.openjpa.persistence.EntityExistsException.class)) {
+			return new javax.persistence.EntityExistsException(e.getMessage(),
+					e);
+		} else if (c
+				.equals(javax.validation.ConstraintViolationException.class)) {
+			return (Exception) e;
+		}
+		LOG.info(
+				"Cannot translate '{}' to specific subtype, will return generic PersistenceException",
+				e.getClass().getName());
+		return new PersistenceException(e);
+	}
 
-  /**
-   * OpenJPA starts with an irrelevant ReportingSQLException....
-   */
-  private boolean isRelevantCause(Throwable cause) {
-    return ! (cause instanceof ReportingSQLException);
-  }
+	/**
+	 * OpenJPA starts with an irrelevant ReportingSQLException....
+	 */
+	private boolean isRelevantCause(Throwable cause) {
+		return !(cause instanceof ReportingSQLException);
+	}
 }

@@ -23,11 +23,12 @@ import org.springframework.stereotype.Repository;
 import org.surfnet.oaaas.model.ResourceServer;
 
 @Repository
-public interface ResourceServerRepository extends CrudRepository<ResourceServer, Long> {
+public interface ResourceServerRepository extends
+		CrudRepository<ResourceServer, Long> {
 
-  List<ResourceServer> findByOwner(String owner);
+	List<ResourceServer> findByOwner(String owner);
 
-  ResourceServer findByIdAndOwner(Long id, String owner);
+	ResourceServer findByIdAndOwner(Long id, String owner);
 
-  ResourceServer findByKey(String key);
+	ResourceServer findByKey(String key);
 }

@@ -34,60 +34,71 @@ import org.surfnet.oaaas.auth.OAuth2Validator;
 
 public class AuthorizationCodeRequestHandler implements HttpRequestHandler {
 
-  private String grantType;
-  private String clientId;
-  private String secret;
+	private String grantType;
+	private String clientId;
+	private String secret;
 
-  private String oauthServerBaseUrl;
-  private String redirectUri;
+	private String oauthServerBaseUrl;
+	private String redirectUri;
 
-  private String tokenResponse;
+	private String tokenResponse;
 
-  public AuthorizationCodeRequestHandler(String redirectUri, String oauthServerBaseUrl, String clientId, String secret,
-      String grantType) {
-    this.redirectUri = redirectUri;
-    this.oauthServerBaseUrl = oauthServerBaseUrl;
-    this.clientId = clientId;
-    this.secret = secret;
-    this.grantType = grantType;
-  }
+	public AuthorizationCodeRequestHandler(String redirectUri,
+			String oauthServerBaseUrl, String clientId, String secret,
+			String grantType) {
+		this.redirectUri = redirectUri;
+		this.oauthServerBaseUrl = oauthServerBaseUrl;
+		this.clientId = clientId;
+		this.secret = secret;
+		this.grantType = grantType;
+	}
 
-  /**
-   * Get the token response, wait for it if not set yet. This causes wonky tests, so we wait a bit before we check the tokenResponse
-   */
-  public String getTokenResponseBlocking() {
-    try {
-      Thread.sleep(2500);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-    while (tokenResponse == null) {
-    }
-    return tokenResponse;
-  }
+	/**
+	 * Get the token response, wait for it if not set yet. This causes wonky
+	 * tests, so we wait a bit before we check the tokenResponse
+	 */
+	public String getTokenResponseBlocking() {
+		try {
+			Thread.sleep(2500);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		while (tokenResponse == null) {
+		}
+		return tokenResponse;
+	}
 
-  @Override
-  public void handle(HttpRequest request, HttpResponse response, HttpContext context) throws HttpException, IOException {
+	@Override
+	public void handle(HttpRequest request, HttpResponse response,
+			HttpContext context) throws HttpException, IOException {
 
-    final String uri = request.getRequestLine().getUri();
-    String authorizationCode = uri.substring(uri.indexOf("code=") + 5);
+		final String uri = request.getRequestLine().getUri();
+		String authorizationCode = uri.substring(uri.indexOf("code=") + 5);
 
-    final HttpPost tokenRequest = new HttpPost(oauthServerBaseUrl + "/oauth2/token");
-    String postBody = getPostBody(authorizationCode, grantType);
+		final HttpPost tokenRequest = new HttpPost(oauthServerBaseUrl
+				+ "/oauth2/token");
+		String postBody = getPostBody(authorizationCode, grantType);
 
-    tokenRequest.setEntity(new ByteArrayEntity(postBody.getBytes()));
-    tokenRequest.addHeader("Authorization", AuthorizationCodeTestIT.authorizationBasic(clientId, secret));
-    tokenRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
+		tokenRequest.setEntity(new ByteArrayEntity(postBody.getBytes()));
+		tokenRequest.addHeader("Authorization",
+				AuthorizationCodeTestIT.authorizationBasic(clientId, secret));
+		tokenRequest.addHeader("Content-Type",
+				"application/x-www-form-urlencoded");
 
-    HttpResponse tokenHttpResponse = new DefaultHttpClient().execute(tokenRequest);
-    final InputStream responseContent = tokenHttpResponse.getEntity().getContent();
-    String responseAsString = new Scanner(responseContent).useDelimiter("\\A").next();
-    responseContent.close();
-    tokenResponse = responseAsString;
-  }
+		HttpResponse tokenHttpResponse = new DefaultHttpClient()
+				.execute(tokenRequest);
+		final InputStream responseContent = tokenHttpResponse.getEntity()
+				.getContent();
+		String responseAsString = new Scanner(responseContent).useDelimiter(
+				"\\A").next();
+		responseContent.close();
+		tokenResponse = responseAsString;
+	}
 
-  private String getPostBody(String authorizationCode, String grantType) {
-    String postBody = String.format("grant_type=%s&code=%s&redirect_uri=%s", grantType, authorizationCode, redirectUri);
-    return postBody;
-  }
+	private String getPostBody(String authorizationCode, String grantType) {
+		String postBody = String.format(
+				"grant_type=%s&code=%s&redirect_uri=%s", grantType,
+				authorizationCode, redirectUri);
+		return postBody;
+	}
 }

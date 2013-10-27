@@ -38,109 +38,115 @@ import static org.junit.matchers.JUnitMatchers.containsString;
  */
 public abstract class SeleniumSupport extends AbstractAuthorizationServerTest {
 
-  private static WebDriver driver;
+	private static WebDriver driver;
 
-  private AuthorizationCodeRequestHandler authorizationCodeRequestHandler;
+	private AuthorizationCodeRequestHandler authorizationCodeRequestHandler;
 
-  private LocalTestServer oauthClientServer;
+	private LocalTestServer oauthClientServer;
 
-  private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper();
 
-  @BeforeClass
-  public static void initializeOnce() {
-    if (driver != null) {
-      driver.close();
-      driver.quit();
-      driver = null;
-    }
-    if ("firefox".equals(System.getProperty("selenium.webdriver", "firefox"))) {
-      initFirefoxDriver();
-    } else {
-      initHtmlUnitDriver();
-    }
+	@BeforeClass
+	public static void initializeOnce() {
+		if (driver != null) {
+			driver.close();
+			driver.quit();
+			driver = null;
+		}
+		if ("firefox".equals(System
+				.getProperty("selenium.webdriver", "firefox"))) {
+			initFirefoxDriver();
+		} else {
+			initHtmlUnitDriver();
+		}
 
-  }
+	}
 
-  protected String startAuthorizationCallbackServer(String clientId, String secret) throws Exception {
-    this.oauthClientServer = new LocalTestServer(null, null);
-    oauthClientServer.start();
-    // report how to access the server
-    String oauthClientBaseUri = String.format("http://%s:%d", oauthClientServer.getServiceAddress().getHostName(),
-            oauthClientServer.getServiceAddress().getPort());
+	protected String startAuthorizationCallbackServer(String clientId,
+			String secret) throws Exception {
+		this.oauthClientServer = new LocalTestServer(null, null);
+		oauthClientServer.start();
+		// report how to access the server
+		String oauthClientBaseUri = String.format("http://%s:%d",
+				oauthClientServer.getServiceAddress().getHostName(),
+				oauthClientServer.getServiceAddress().getPort());
 
-    String accessTokenRedirectUri = oauthClientBaseUri + "/codeCatcher";
+		String accessTokenRedirectUri = oauthClientBaseUri + "/codeCatcher";
 
-    authorizationCodeRequestHandler = new AuthorizationCodeRequestHandler(accessTokenRedirectUri, baseUrl(), clientId,
-            secret, OAuth2Validator.GRANT_TYPE_AUTHORIZATION_CODE);
-    oauthClientServer.register("/codeCatcher", authorizationCodeRequestHandler);
-    return accessTokenRedirectUri;
-  }
+		authorizationCodeRequestHandler = new AuthorizationCodeRequestHandler(
+				accessTokenRedirectUri, baseUrl(), clientId, secret,
+				OAuth2Validator.GRANT_TYPE_AUTHORIZATION_CODE);
+		oauthClientServer.register("/codeCatcher",
+				authorizationCodeRequestHandler);
+		return accessTokenRedirectUri;
+	}
 
-  protected AuthorizationCodeRequestHandler getAuthorizationCodeRequestHandler() {
-    return authorizationCodeRequestHandler;
-  }
+	protected AuthorizationCodeRequestHandler getAuthorizationCodeRequestHandler() {
+		return authorizationCodeRequestHandler;
+	}
 
-  private static void initHtmlUnitDriver() {
-    initDriver(new HtmlUnitDriver());
-  }
+	private static void initHtmlUnitDriver() {
+		initDriver(new HtmlUnitDriver());
+	}
 
-  private static void initFirefoxDriver() {
-    initDriver(new FirefoxDriver());
-  }
+	private static void initFirefoxDriver() {
+		initDriver(new FirefoxDriver());
+	}
 
-  private static void initDriver(WebDriver remoteWebDriver) {
-    SeleniumSupport.driver = remoteWebDriver;
-    SeleniumSupport.driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        if (driver != null) {
-          driver.quit();
-        }
-      }
-    });
-  }
+	private static void initDriver(WebDriver remoteWebDriver) {
+		SeleniumSupport.driver = remoteWebDriver;
+		SeleniumSupport.driver.manage().timeouts()
+				.implicitlyWait(3, TimeUnit.SECONDS);
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				if (driver != null) {
+					driver.quit();
+				}
+			}
+		});
+	}
 
-  /**
-   * @return the webDriver
-   */
-  protected WebDriver getWebDriver() {
-    return driver;
-  }
+	/**
+	 * @return the webDriver
+	 */
+	protected WebDriver getWebDriver() {
+		return driver;
+	}
 
-  public void restartBrowserSession() {
-    initializeOnce();
-  }
+	public void restartBrowserSession() {
+		initializeOnce();
+	}
 
+	protected void login(WebDriver webdriver, boolean consent) {
+		// Login end user.
+		webdriver.findElement(By.name("j_username")).sendKeys("enduser");
+		webdriver.findElement(By.name("j_password")).sendKeys("enduserpass");
+		webdriver.findElement(By.xpath("//form")).submit();
+		if (consent) {
+			consent(webdriver);
+		}
+	}
 
-  protected void login(WebDriver webdriver, boolean consent) {
-    // Login end user.
-    webdriver.findElement(By.name("j_username")).sendKeys("enduser");
-    webdriver.findElement(By.name("j_password")).sendKeys("enduserpass");
-    webdriver.findElement(By.xpath("//form")).submit();
-    if (consent) {
-      consent(webdriver);
-    }
-  }
+	private void consent(WebDriver webdriver) {
+		// consent form
+		assertThat(webdriver.getPageSource(),
+				containsString("Grant permission"));
+		webdriver.findElement(By.id("user_oauth_approval")).click();
+	}
 
-  private void consent(WebDriver webdriver) {
-    // consent form
-    assertThat(webdriver.getPageSource(), containsString("Grant permission"));
-    webdriver.findElement(By.id("user_oauth_approval")).click();
-  }
+	/**
+	 * @return the oauthClientServer
+	 */
+	public LocalTestServer getOauthClientServer() {
+		return oauthClientServer;
+	}
 
-  /**
-   * @return the oauthClientServer
-   */
-  public LocalTestServer getOauthClientServer() {
-    return oauthClientServer;
-  }
-
-  /**
-   * @return the mapper
-   */
-  public ObjectMapper getMapper() {
-    return mapper;
-  }
+	/**
+	 * @return the mapper
+	 */
+	public ObjectMapper getMapper() {
+		return mapper;
+	}
 
 }

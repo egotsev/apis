@@ -25,10 +25,13 @@ import static org.junit.Assert.assertEquals;
 
 public class AuthenticatedPrincipalTest {
 
-  @Test
-  public void testSerialization() {
-    AuthenticatedPrincipal principal = new AuthenticatedPrincipal("emma.blunt");
-    assertEquals("emma.blunt",AuthenticatedPrincipal.deserialize(principal.serialize()).getDisplayName());
-  }
+	@Test
+	public void testSerialization() {
+		AuthenticatedPrincipal principal = new AuthenticatedPrincipal(
+				"emma.blunt");
+		assertEquals("emma.blunt",
+				AuthenticatedPrincipal.deserialize(principal.serialize())
+						.getDisplayName());
+	}
 
 }

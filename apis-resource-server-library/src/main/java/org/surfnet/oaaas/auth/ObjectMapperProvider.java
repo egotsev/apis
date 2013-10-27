@@ -35,24 +35,29 @@ import com.sun.jersey.api.client.Client;
 /**
  * We need to be able to set the {@link ObjectMapper} on the {@link Client} to
  * make sure the {@link MrBeanModule} is used.
- *
+ * 
  */
 public class ObjectMapperProvider implements ContextResolver<ObjectMapper> {
 
-  private ObjectMapper mapper;
+	private ObjectMapper mapper;
 
-  public ObjectMapperProvider(){
-    mapper = new ObjectMapper().enable(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY).enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL)
-        .setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL).setVisibility(JsonMethod.FIELD, Visibility.ANY);
-    mapper.registerModule(new MrBeanModule());
-  }
+	public ObjectMapperProvider() {
+		mapper = new ObjectMapper()
+				.enable(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+				.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL)
+				.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL)
+				.setVisibility(JsonMethod.FIELD, Visibility.ANY);
+		mapper.registerModule(new MrBeanModule());
+	}
 
-  /* (non-Javadoc)
-   * @see javax.ws.rs.ext.ContextResolver#getContext(java.lang.Class)
-   */
-  @Override
-  public ObjectMapper getContext(Class<?> type) {
-    return mapper;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see javax.ws.rs.ext.ContextResolver#getContext(java.lang.Class)
+	 */
+	@Override
+	public ObjectMapper getContext(Class<?> type) {
+		return mapper;
+	}
 
 }

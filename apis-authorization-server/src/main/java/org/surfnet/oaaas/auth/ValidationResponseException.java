@@ -22,9 +22,9 @@ import org.surfnet.oaaas.auth.OAuth2Validator.ValidationResponse;
 
 @SuppressWarnings("serial")
 public class ValidationResponseException extends RuntimeException {
-  public final ValidationResponse v;
+	public final ValidationResponse v;
 
-  public ValidationResponseException(ValidationResponse v) {
-    this.v = v;
-  }
+	public ValidationResponseException(ValidationResponse v) {
+		this.v = v;
+	}
 }

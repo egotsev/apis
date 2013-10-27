@@ -39,49 +39,52 @@ import com.sun.jersey.api.json.JSONMarshaller;
 /**
  * Test to generate {@link Base64} encoded and decoded {@link String} for
  * creating valid test data in the in-memory database.
- *
+ * 
  */
 public class AccessTokenTest {
 
-  @Test
-  public void marshallToJsonShouldHideSomeMembers() throws JAXBException {
-    AccessToken token = getToken(new AuthenticatedPrincipal("Truus"));
-    token.setClient(createClient("my-client-id", "my-client-secret"));
+	@Test
+	public void marshallToJsonShouldHideSomeMembers() throws JAXBException {
+		AccessToken token = getToken(new AuthenticatedPrincipal("Truus"));
+		token.setClient(createClient("my-client-id", "my-client-secret"));
 
-    String json = marshallToJson(token);
+		String json = marshallToJson(token);
 
-    assertTrue(json.contains("my-client-id"));
-    assertFalse(json.contains("my-client-secret"));
-    assertFalse(json.contains("principal"));
-    assertFalse(json.contains("encodedPrincipal"));
-  }
+		assertTrue(json.contains("my-client-id"));
+		assertFalse(json.contains("my-client-secret"));
+		assertFalse(json.contains("principal"));
+		assertFalse(json.contains("encodedPrincipal"));
+	}
 
-  private String marshallToJson(AccessToken token) throws JAXBException {
-    JSONJAXBContext context = new JSONJAXBContext(AccessToken.class);
-    JSONMarshaller marshaller = context.createJSONMarshaller();
+	private String marshallToJson(AccessToken token) throws JAXBException {
+		JSONJAXBContext context = new JSONJAXBContext(AccessToken.class);
+		JSONMarshaller marshaller = context.createJSONMarshaller();
 
-    StringWriter writer = new StringWriter();
-    marshaller.marshallToJSON(token, writer);
+		StringWriter writer = new StringWriter();
+		marshaller.marshallToJSON(token, writer);
 
-    return writer.toString();
-  }
+		return writer.toString();
+	}
 
-  private Client createClient(String id, String secret) {
-    Client client = new Client();
-    client.setClientId(id);
-    client.setSecret(secret);
-    return client;
-  }
+	private Client createClient(String id, String secret) {
+		Client client = new Client();
+		client.setClientId(id);
+		client.setSecret(secret);
+		return client;
+	}
 
-  private String generateEncodedPrincipal(String name, Collection<String> roles) {
-    AuthenticatedPrincipal principal = new AuthenticatedPrincipal(name, roles);
-    AccessToken token = getToken(principal);
-    token.encodePrincipal();
-    return token.getEncodedPrincipal();
-  }
+	private String generateEncodedPrincipal(String name,
+			Collection<String> roles) {
+		AuthenticatedPrincipal principal = new AuthenticatedPrincipal(name,
+				roles);
+		AccessToken token = getToken(principal);
+		token.encodePrincipal();
+		return token.getEncodedPrincipal();
+	}
 
-  private AccessToken getToken(AuthenticatedPrincipal principal) {
-    return new AccessToken(UUID.randomUUID().toString(), principal, new Client(), 0, Arrays.asList("read","update"));
-  }
+	private AccessToken getToken(AuthenticatedPrincipal principal) {
+		return new AccessToken(UUID.randomUUID().toString(), principal,
+				new Client(), 0, Arrays.asList("read", "update"));
+	}
 
 }

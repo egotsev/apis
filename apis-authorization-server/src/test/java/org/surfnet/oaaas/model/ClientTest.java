@@ -34,45 +34,51 @@ import static org.junit.Assert.assertEquals;
  */
 public class ClientTest extends AbstractEntityTest {
 
-  private Client client;
+	private Client client;
 
-  private List<String> uris = Arrays.asList("http://uri1", "http://uri2");
+	private List<String> uris = Arrays.asList("http://uri1", "http://uri2");
 
-  @Before
-  public void setup() {
-    client = new Client();
-    client.setName("not-null");
-    client.setClientId("not-null");
-    client.setUseRefreshTokens(true);
-    client.setExpireDuration(60 * 60);
-    client.setRedirectUris(uris);
+	@Before
+	public void setup() {
+		client = new Client();
+		client.setName("not-null");
+		client.setClientId("not-null");
+		client.setUseRefreshTokens(true);
+		client.setExpireDuration(60 * 60);
+		client.setRedirectUris(uris);
 
-    ResourceServer resourceServer = new ResourceServer();
-    resourceServer.setScopes(Arrays.asList("read", "delete"));
-    client.setScopes(Arrays.asList("read", "delete"));
-    client.setResourceServer(resourceServer);
+		ResourceServer resourceServer = new ResourceServer();
+		resourceServer.setScopes(Arrays.asList("read", "delete"));
+		client.setScopes(Arrays.asList("read", "delete"));
+		client.setResourceServer(resourceServer);
 
-  }
+	}
 
-  @Test
-  public void noErrors() {
-    Set<ConstraintViolation<Client>> violations = validator.validate(client);
-    assertEquals(0, violations.size());
-    assertEquals(uris, client.getRedirectUris());
-  }
+	@Test
+	public void noErrors() {
+		Set<ConstraintViolation<Client>> violations = validator
+				.validate(client);
+		assertEquals(0, violations.size());
+		assertEquals(uris, client.getRedirectUris());
+	}
 
-  @Test
-  public void arbitraryScopes() {
+	@Test
+	public void arbitraryScopes() {
 
-    client.setScopes(Arrays.asList("arbitrary", "scopes"));
-    Set<ConstraintViolation<Client>> violations = validator.validate(client);
-    assertEquals("Client should only be able to use scopes that the resource server defines", 1, violations.size());
-  }
+		client.setScopes(Arrays.asList("arbitrary", "scopes"));
+		Set<ConstraintViolation<Client>> violations = validator
+				.validate(client);
+		assertEquals(
+				"Client should only be able to use scopes that the resource server defines",
+				1, violations.size());
+	}
 
-  @Test
-  public void redirectUris() {
-    client.setRedirectUris(Arrays.asList("invalid-uri"));
-    Set<ConstraintViolation<Client>> violations = validator.validate(client);
-    assertEquals("Client should have valid redirectUris", 1, violations.size());
-  }
+	@Test
+	public void redirectUris() {
+		client.setRedirectUris(Arrays.asList("invalid-uri"));
+		Set<ConstraintViolation<Client>> violations = validator
+				.validate(client);
+		assertEquals("Client should have valid redirectUris", 1,
+				violations.size());
+	}
 }

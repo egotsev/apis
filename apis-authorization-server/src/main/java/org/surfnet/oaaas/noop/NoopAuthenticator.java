@@ -27,27 +27,29 @@ import org.surfnet.oaaas.auth.AbstractAuthenticator;
 import org.surfnet.oaaas.auth.principal.AuthenticatedPrincipal;
 
 /**
- * A minimalistic implementation of AbstractAuthenticator that contains no authentication but only fulfills the
- * contract of Authenticators.
- * Useful for testing and demonstration purposes only, of course not safe for production.
+ * A minimalistic implementation of AbstractAuthenticator that contains no
+ * authentication but only fulfills the contract of Authenticators. Useful for
+ * testing and demonstration purposes only, of course not safe for production.
  */
 public class NoopAuthenticator extends AbstractAuthenticator {
 
-  @Override
-  public boolean canCommence(HttpServletRequest request) {
-    return getAuthStateValue(request) != null;
-  }
+	@Override
+	public boolean canCommence(HttpServletRequest request) {
+		return getAuthStateValue(request) != null;
+	}
 
-  @Override
-  public void authenticate(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-      String authStateValue, String returnUri) throws IOException, ServletException {
-    super.setAuthStateValue(request, authStateValue);
-    AuthenticatedPrincipal principal = getAuthenticatedPrincipal();
-    super.setPrincipal(request, principal);
-    chain.doFilter(request, response);
-  }
+	@Override
+	public void authenticate(HttpServletRequest request,
+			HttpServletResponse response, FilterChain chain,
+			String authStateValue, String returnUri) throws IOException,
+			ServletException {
+		super.setAuthStateValue(request, authStateValue);
+		AuthenticatedPrincipal principal = getAuthenticatedPrincipal();
+		super.setPrincipal(request, principal);
+		chain.doFilter(request, response);
+	}
 
-  protected AuthenticatedPrincipal getAuthenticatedPrincipal() {
-    return new AuthenticatedPrincipal("noop");
-  }
+	protected AuthenticatedPrincipal getAuthenticatedPrincipal() {
+		return new AuthenticatedPrincipal("noop");
+	}
 }

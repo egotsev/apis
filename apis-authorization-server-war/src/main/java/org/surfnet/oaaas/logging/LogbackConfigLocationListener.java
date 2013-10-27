@@ -14,42 +14,48 @@ import java.net.URL;
 
 public class LogbackConfigLocationListener implements ServletContextListener {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LogbackConfigLocationListener.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(LogbackConfigLocationListener.class);
 
-  public static final String CONFIG_FILE = "/apis-logback.xml";
+	public static final String CONFIG_FILE = "/apis-logback.xml";
 
-  @Override
-  public void contextInitialized(ServletContextEvent sce) {
-    try {
-        URL logbackConfigLocation = LogbackConfigLocationListener.class.getResource(CONFIG_FILE);
+	@Override
+	public void contextInitialized(ServletContextEvent sce) {
+		try {
+			URL logbackConfigLocation = LogbackConfigLocationListener.class
+					.getResource(CONFIG_FILE);
 
-        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+			LoggerContext lc = (LoggerContext) LoggerFactory
+					.getILoggerFactory();
 
-        if (logbackConfigLocation == null) {
-          BasicConfigurator.configureDefaultContext();
-          LOG.info("No context-specific configuration file found, will use Logback's default configuration");
-        } else {
-          LOG.debug("Found logback configuration file at {}", logbackConfigLocation);
-          JoranConfigurator configurator = new JoranConfigurator();
-          configurator.setContext(lc);
-          // the context was probably already configured by default configuration rules
-          lc.reset();
-          try {
-            configurator.doConfigure(logbackConfigLocation);
-          } catch (JoranException je) {
-            // StatusPrinter will handle this
-          }
+			if (logbackConfigLocation == null) {
+				BasicConfigurator.configureDefaultContext();
+				LOG.info("No context-specific configuration file found, will use Logback's default configuration");
+			} else {
+				LOG.debug("Found logback configuration file at {}",
+						logbackConfigLocation);
+				JoranConfigurator configurator = new JoranConfigurator();
+				configurator.setContext(lc);
+				// the context was probably already configured by default
+				// configuration rules
+				lc.reset();
+				try {
+					configurator.doConfigure(logbackConfigLocation);
+				} catch (JoranException je) {
+					// StatusPrinter will handle this
+				}
 
-        }
-        StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
-    } catch (Exception ex) {
-      //Failed to load the custom log file, we log an error and use the default log config.
-      LOG.error("Unable to initialize context", ex);
-    }
+			}
+			StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+		} catch (Exception ex) {
+			// Failed to load the custom log file, we log an error and use the
+			// default log config.
+			LOG.error("Unable to initialize context", ex);
+		}
 
-  }
+	}
 
-  @Override
-  public void contextDestroyed(ServletContextEvent sce) {
-  }
+	@Override
+	public void contextDestroyed(ServletContextEvent sce) {
+	}
 }

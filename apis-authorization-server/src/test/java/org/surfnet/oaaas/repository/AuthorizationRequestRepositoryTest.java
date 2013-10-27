@@ -37,43 +37,46 @@ import static org.junit.Assert.assertEquals;
  */
 public class AuthorizationRequestRepositoryTest extends AbstractTestRepository {
 
-  @Test
-  public void test() {
-    AuthorizationRequestRepository repo = getRepository(AuthorizationRequestRepository.class);
-    String authState = UUID.randomUUID().toString();
-    AuthorizationRequest authReq = new AuthorizationRequest("code", "cool_app_id", "http://whatever",
-        Arrays.asList("read","update"),
-        "state", authState);
-    ClientRepository clientRepo = getRepository(ClientRepository.class);
-    Client client = clientRepo.findByClientId(authReq.getClientId());
-    client.getAttributes();
-    authReq.setClient(client);
-    save(authReq, repo);
-    authReq.setPrincipal(getPrincipal());
-    repo.save(authReq);
+	@Test
+	public void test() {
+		AuthorizationRequestRepository repo = getRepository(AuthorizationRequestRepository.class);
+		String authState = UUID.randomUUID().toString();
+		AuthorizationRequest authReq = new AuthorizationRequest("code",
+				"cool_app_id", "http://whatever", Arrays.asList("read",
+						"update"), "state", authState);
+		ClientRepository clientRepo = getRepository(ClientRepository.class);
+		Client client = clientRepo.findByClientId(authReq.getClientId());
+		client.getAttributes();
+		authReq.setClient(client);
+		save(authReq, repo);
+		authReq.setPrincipal(getPrincipal());
+		repo.save(authReq);
 
-    AuthorizationRequest authReqSaved = repo.findByAuthState(authState);
-    AuthenticatedPrincipal principal = authReqSaved.getPrincipal();
-    assertEquals("foo-university", principal.getAttributes().get("organization"));
+		AuthorizationRequest authReqSaved = repo.findByAuthState(authState);
+		AuthenticatedPrincipal principal = authReqSaved.getPrincipal();
+		assertEquals("foo-university",
+				principal.getAttributes().get("organization"));
 
-  }
+	}
 
-  /*
-   * http://stackoverflow.com/questions/9123964/how-do-you-use-spring-data-jpa-
-   * outside-of-a-spring-container
-   */
-  private AuthorizationRequest save(AuthorizationRequest authorizationRequest, AuthorizationRequestRepository repo) {
-    getEntityManager().getTransaction().begin();
-    AuthorizationRequest save = repo.save(authorizationRequest);
-    getEntityManager().getTransaction().commit();
-    return save;
-  }
+	/*
+	 * http://stackoverflow.com/questions/9123964/how-do-you-use-spring-data-jpa-
+	 * outside-of-a-spring-container
+	 */
+	private AuthorizationRequest save(
+			AuthorizationRequest authorizationRequest,
+			AuthorizationRequestRepository repo) {
+		getEntityManager().getTransaction().begin();
+		AuthorizationRequest save = repo.save(authorizationRequest);
+		getEntityManager().getTransaction().commit();
+		return save;
+	}
 
-  private AuthenticatedPrincipal getPrincipal() {
-    List<String> roles = Arrays.asList(new String[] { "user", "admin" });
-    Map<String, String> attributes = new HashMap<String, String>();
-    attributes.put("organization", "foo-university");
-    return new AuthenticatedPrincipal("john.doe", roles, attributes);
-  }
+	private AuthenticatedPrincipal getPrincipal() {
+		List<String> roles = Arrays.asList(new String[] { "user", "admin" });
+		Map<String, String> attributes = new HashMap<String, String>();
+		attributes.put("organization", "foo-university");
+		return new AuthenticatedPrincipal("john.doe", roles, attributes);
+	}
 
 }

@@ -25,55 +25,61 @@ import static org.junit.Assert.*;
 
 public class TokenResponseCacheTest {
 
-  private TokenResponseCache cache;
+	private TokenResponseCache cache;
 
-  @Before
-  public void before() throws Exception {
-    cache = new TokenResponseCacheImpl(3, 60 * 60 * 24);
-  }
+	@Before
+	public void before() throws Exception {
+		cache = new TokenResponseCacheImpl(3, 60 * 60 * 24);
+	}
 
-  @Test
-  public void testGetVerifyToken() throws Exception {
-    VerifyTokenResponse verifyToken = cache.getVerifyToken(null);
-    assertNull(verifyToken);
+	@Test
+	public void testGetVerifyToken() throws Exception {
+		VerifyTokenResponse verifyToken = cache.getVerifyToken(null);
+		assertNull(verifyToken);
 
-    VerifyTokenResponse token = new VerifyTokenResponse();
-    cache.storeVerifyToken("123456", token);
+		VerifyTokenResponse token = new VerifyTokenResponse();
+		cache.storeVerifyToken("123456", token);
 
-    VerifyTokenResponse res1 = cache.getVerifyToken("123456");
-    assertEquals(token, res1);
+		VerifyTokenResponse res1 = cache.getVerifyToken("123456");
+		assertEquals(token, res1);
 
-  }
+	}
 
-  @Test
-  public void testStoreVerifyTokenWithMaxSize() throws Exception {
-    for (int i = 0; i < 5; i++) {
-      cache.storeVerifyToken(Integer.toString(i), new VerifyTokenResponse());
-      Thread.sleep(5);
-    }
-    for (int i = 0; i < 2; i++) {
-      VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer.toString(i));
-      assertNull(verifyToken);
-    }
-    for (int i = 2; i < 5; i++) {
-      VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer.toString(i));
-      assertNotNull(verifyToken);
-    }
-  }
+	@Test
+	public void testStoreVerifyTokenWithMaxSize() throws Exception {
+		for (int i = 0; i < 5; i++) {
+			cache.storeVerifyToken(Integer.toString(i),
+					new VerifyTokenResponse());
+			Thread.sleep(5);
+		}
+		for (int i = 0; i < 2; i++) {
+			VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer
+					.toString(i));
+			assertNull(verifyToken);
+		}
+		for (int i = 2; i < 5; i++) {
+			VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer
+					.toString(i));
+			assertNotNull(verifyToken);
+		}
+	}
 
-  @Test
-  public void testStoreVerifyTokenWithExpires() throws Exception {
-    cache = new TokenResponseCacheImpl(3, 1);
-    for (int i = 0; i < 5; i++) {
-      cache.storeVerifyToken(Integer.toString(i), new VerifyTokenResponse());
-    }
-    Thread.sleep(1500);
-    cache.storeVerifyToken(Integer.toString(10), new VerifyTokenResponse());
-    for (int i = 0; i < 5; i++) {
-      VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer.toString(i));
-      assertNull(verifyToken);
-    }
-    VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer.toString(10));
-    assertNotNull(verifyToken);
-  }
+	@Test
+	public void testStoreVerifyTokenWithExpires() throws Exception {
+		cache = new TokenResponseCacheImpl(3, 1);
+		for (int i = 0; i < 5; i++) {
+			cache.storeVerifyToken(Integer.toString(i),
+					new VerifyTokenResponse());
+		}
+		Thread.sleep(1500);
+		cache.storeVerifyToken(Integer.toString(10), new VerifyTokenResponse());
+		for (int i = 0; i < 5; i++) {
+			VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer
+					.toString(i));
+			assertNull(verifyToken);
+		}
+		VerifyTokenResponse verifyToken = cache.getVerifyToken(Integer
+				.toString(10));
+		assertNotNull(verifyToken);
+	}
 }

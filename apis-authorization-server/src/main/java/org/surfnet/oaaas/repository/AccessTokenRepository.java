@@ -25,18 +25,20 @@ import org.surfnet.oaaas.model.AccessToken;
 import org.surfnet.oaaas.model.Client;
 
 @Repository
-public interface AccessTokenRepository extends CrudRepository<AccessToken, Long> {
+public interface AccessTokenRepository extends
+		CrudRepository<AccessToken, Long> {
 
-  AccessToken findByToken(String token);
+	AccessToken findByToken(String token);
 
-  AccessToken findByRefreshToken(String refreshToken);
+	AccessToken findByRefreshToken(String refreshToken);
 
-  List<AccessToken> findByResourceOwnerIdAndClient(String resourceOwnerId, Client client);
+	List<AccessToken> findByResourceOwnerIdAndClient(String resourceOwnerId,
+			Client client);
 
-  List<AccessToken> findByResourceOwnerId(String resourceOwnerId);
+	List<AccessToken> findByResourceOwnerId(String resourceOwnerId);
 
-  AccessToken findByIdAndResourceOwnerId(Long id, String owner);
+	AccessToken findByIdAndResourceOwnerId(Long id, String owner);
 
-  @Query(value = "select count(distinct resourceOwnerId) from accesstoken where client_id = ?1", nativeQuery = true)
-  Number countByUniqueResourceOwnerIdAndClientId(long clientId);
+	@Query(value = "select count(distinct resourceOwnerId) from accesstoken where client_id = ?1", nativeQuery = true)
+	Number countByUniqueResourceOwnerIdAndClientId(long clientId);
 }

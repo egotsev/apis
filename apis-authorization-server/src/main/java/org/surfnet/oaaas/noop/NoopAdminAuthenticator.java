@@ -31,10 +31,10 @@ import org.surfnet.oaaas.auth.principal.AuthenticatedPrincipal;
  */
 public class NoopAdminAuthenticator extends NoopAuthenticator {
 
-  @Override
-  protected AuthenticatedPrincipal getAuthenticatedPrincipal() {
-    AuthenticatedPrincipal principal = super.getAuthenticatedPrincipal();
-    principal.setAdminPrincipal(true);
-    return principal;
-  }
+	@Override
+	protected AuthenticatedPrincipal getAuthenticatedPrincipal() {
+		AuthenticatedPrincipal principal = super.getAuthenticatedPrincipal();
+		principal.setAdminPrincipal(true);
+		return principal;
+	}
 }

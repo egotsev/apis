@@ -21,11 +21,11 @@ import org.springframework.stereotype.Repository;
 import org.surfnet.oaaas.model.AuthorizationRequest;
 
 @Repository
-public interface AuthorizationRequestRepository extends CrudRepository<AuthorizationRequest, Long> {
-  
-  AuthorizationRequest findByAuthState(String authState);
-  
-  AuthorizationRequest findByAuthorizationCode(String authorizationCode);
-  
-  
+public interface AuthorizationRequestRepository extends
+		CrudRepository<AuthorizationRequest, Long> {
+
+	AuthorizationRequest findByAuthState(String authState);
+
+	AuthorizationRequest findByAuthorizationCode(String authorizationCode);
+
 }

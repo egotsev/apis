@@ -25,14 +25,16 @@ import static org.junit.Assert.assertTrue;
 
 public class UserPassCredentialsTest {
 
-  @Test
-  public void testGetAuthorizationHeaderValue() throws Exception {
-    UserPassCredentials credentials = new UserPassCredentials("john.doe","secret");
-    assertTrue(credentials.isValid());
+	@Test
+	public void testGetAuthorizationHeaderValue() throws Exception {
+		UserPassCredentials credentials = new UserPassCredentials("john.doe",
+				"secret");
+		assertTrue(credentials.isValid());
 
-    UserPassCredentials fromAuthValue = new UserPassCredentials(credentials.getAuthorizationHeaderValue());
-    assertEquals(credentials.getUsername(), fromAuthValue.getUsername());
-    assertEquals(credentials.getPassword(), fromAuthValue.getPassword());
+		UserPassCredentials fromAuthValue = new UserPassCredentials(
+				credentials.getAuthorizationHeaderValue());
+		assertEquals(credentials.getUsername(), fromAuthValue.getUsername());
+		assertEquals(credentials.getPassword(), fromAuthValue.getPassword());
 
-  }
+	}
 }

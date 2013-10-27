@@ -44,81 +44,90 @@ import org.surfnet.oaaas.repository.AccessTokenRepository;
 @Produces(MediaType.APPLICATION_JSON)
 public class AccessTokenResource extends AbstractResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AccessTokenResource.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(AccessTokenResource.class);
 
-  @Inject
-  private AccessTokenRepository accessTokenRepository;
+	@Inject
+	private AccessTokenRepository accessTokenRepository;
 
-  /**
-   * Get all access token for the provided credentials (== owner).
-   */
-  @GET
-  public Response getAll(@Context HttpServletRequest request) {
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_READ));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
-    List<AccessToken> tokens = getAllAccessTokens(request);
-    return Response.ok(tokens).build();
-  }
+	/**
+	 * Get all access token for the provided credentials (== owner).
+	 */
+	@GET
+	public Response getAll(@Context HttpServletRequest request) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_READ));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
+		List<AccessToken> tokens = getAllAccessTokens(request);
+		return Response.ok(tokens).build();
+	}
 
-  /**
-   * Get one token.
-   */
-  @GET
-  @Path("/{accessTokenId}")
-  public Response getById(@Context HttpServletRequest request, @PathParam("accessTokenId") Long id) {
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_READ));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
-    return response(getAccessToken(request, id));
-  }
+	/**
+	 * Get one token.
+	 */
+	@GET
+	@Path("/{accessTokenId}")
+	public Response getById(@Context HttpServletRequest request,
+			@PathParam("accessTokenId") Long id) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_READ));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
+		return response(getAccessToken(request, id));
+	}
 
+	/**
+	 * Delete an existing access token.
+	 */
+	@DELETE
+	@Path("/{accessTokenId}")
+	public Response delete(@Context HttpServletRequest request,
+			@PathParam("accessTokenId") Long id) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_WRITE));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
+		AccessToken accessToken = getAccessToken(request, id);
+		if (accessToken == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+		LOG.debug("About to delete accessToken {}", id);
+		accessTokenRepository.delete(id);
+		return Response.noContent().build();
+	}
 
-  /**
-   * Delete an existing access token.
-   */
-  @DELETE
-  @Path("/{accessTokenId}")
-  public Response delete(@Context HttpServletRequest request, @PathParam("accessTokenId") Long id) {
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_WRITE));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
-    AccessToken accessToken = getAccessToken(request, id);
-    if (accessToken == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-    LOG.debug("About to delete accessToken {}", id);
-    accessTokenRepository.delete(id);
-    return Response.noContent().build();
-  }
+	private AccessToken getAccessToken(HttpServletRequest request, Long id) {
+		AccessToken accessToken;
+		if (isAdminPrincipal(request)) {
+			accessToken = accessTokenRepository.findOne(id);
+		} else {
+			String owner = getUserId(request);
+			accessToken = accessTokenRepository.findByIdAndResourceOwnerId(id,
+					owner);
+		}
+		LOG.debug("About to return one accessToken with id {}: {}", id,
+				accessToken);
+		return accessToken;
+	}
 
-  private AccessToken getAccessToken(HttpServletRequest request, Long id) {
-    AccessToken accessToken;
-    if (isAdminPrincipal(request)) {
-      accessToken = accessTokenRepository.findOne(id);
-    } else {
-      String owner = getUserId(request);
-      accessToken = accessTokenRepository.findByIdAndResourceOwnerId(id, owner);
-    }
-    LOG.debug("About to return one accessToken with id {}: {}", id, accessToken);
-    return accessToken;
-  }
-
-  private List<AccessToken> getAllAccessTokens(HttpServletRequest request) {
-    List<AccessToken> accessTokens;
-    if (isAdminPrincipal(request)) {
-      accessTokens = addAll(accessTokenRepository.findAll().iterator());
-      LOG.debug("About to return all resource servers ({}) for adminPrincipal", accessTokens.size());
-    } else {
-      String owner = getUserId(request);
-      accessTokens = accessTokenRepository.findByResourceOwnerId(owner);
-      LOG.debug("About to return all resource servers ({}) for owner {}", accessTokens.size(), owner);
-    }
-    return accessTokens;
-  }
-
+	private List<AccessToken> getAllAccessTokens(HttpServletRequest request) {
+		List<AccessToken> accessTokens;
+		if (isAdminPrincipal(request)) {
+			accessTokens = addAll(accessTokenRepository.findAll().iterator());
+			LOG.debug(
+					"About to return all resource servers ({}) for adminPrincipal",
+					accessTokens.size());
+		} else {
+			String owner = getUserId(request);
+			accessTokens = accessTokenRepository.findByResourceOwnerId(owner);
+			LOG.debug("About to return all resource servers ({}) for owner {}",
+					accessTokens.size(), owner);
+		}
+		return accessTokens;
+	}
 
 }

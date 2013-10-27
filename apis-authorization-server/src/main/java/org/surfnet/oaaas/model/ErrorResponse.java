@@ -30,48 +30,48 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @XmlRootElement
 public class ErrorResponse {
 
-  private String error;
-  @JsonProperty("error_description")
-  private String errorDescription;
+	private String error;
+	@JsonProperty("error_description")
+	private String errorDescription;
 
-  public ErrorResponse() {
-    super();
-  }
+	public ErrorResponse() {
+		super();
+	}
 
-  public ErrorResponse(String error, String errorDescription) {
-    super();
-    this.error = error;
-    this.errorDescription = errorDescription;
-  }
+	public ErrorResponse(String error, String errorDescription) {
+		super();
+		this.error = error;
+		this.errorDescription = errorDescription;
+	}
 
-  /**
-   * @return the error
-   */
-  public String getError() {
-    return error;
-  }
+	/**
+	 * @return the error
+	 */
+	public String getError() {
+		return error;
+	}
 
-  /**
-   * @param error
-   *          the error to set
-   */
-  public void setError(String error) {
-    this.error = error;
-  }
+	/**
+	 * @param error
+	 *            the error to set
+	 */
+	public void setError(String error) {
+		this.error = error;
+	}
 
-  /**
-   * @return the errorDescription
-   */
-  public String getErrorDescription() {
-    return errorDescription;
-  }
+	/**
+	 * @return the errorDescription
+	 */
+	public String getErrorDescription() {
+		return errorDescription;
+	}
 
-  /**
-   * @param errorDescription
-   *          the errorDescription to set
-   */
-  public void setErrorDescription(String errorDescription) {
-    this.errorDescription = errorDescription;
-  }
+	/**
+	 * @param errorDescription
+	 *            the errorDescription to set
+	 */
+	public void setErrorDescription(String errorDescription) {
+		this.errorDescription = errorDescription;
+	}
 
 }

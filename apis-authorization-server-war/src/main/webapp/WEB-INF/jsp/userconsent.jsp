@@ -51,16 +51,10 @@
 
 				<fieldset>
 					<c:forEach items="${client.scopes}" var="availableScope">
-						<c:set var="checked" value="" />
-						<c:forEach var="requestedScope" items="${requestedScopes}">
-							<c:if test="${requestedScope eq availableScope}">
-								<c:set var="checked" value="CHECKED" />
-							</c:if>
-						</c:forEach>
-						<input type="checkbox" id="GRANTED_SCOPES" name="GRANTED_SCOPES"
+						<input type="hidden" id="GRANTED_SCOPES" name="GRANTED_SCOPES"
 							<c:out value="${checked}"/> value="${availableScope}" />
 						<span class="consent-label">${availableScope}</span>
-						<br />
+						<hr />
 					</c:forEach>
 				</fieldset>
 				<fieldset>

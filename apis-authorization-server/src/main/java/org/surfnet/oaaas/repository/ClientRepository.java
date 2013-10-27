@@ -26,10 +26,10 @@ import org.surfnet.oaaas.model.ResourceServer;
 @Repository
 public interface ClientRepository extends CrudRepository<Client, Long> {
 
-  List<Client> findByResourceServer(ResourceServer resourceServer);
+	List<Client> findByResourceServer(ResourceServer resourceServer);
 
-  Client findByIdAndResourceServer(Long id, ResourceServer resourceServer);
+	Client findByIdAndResourceServer(Long id, ResourceServer resourceServer);
 
-  Client findByClientId(String clientId);
-  
+	Client findByClientId(String clientId);
+
 }

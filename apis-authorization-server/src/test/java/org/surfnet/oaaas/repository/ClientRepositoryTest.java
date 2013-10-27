@@ -38,68 +38,70 @@ import org.surfnet.oaaas.model.ResourceServer;
  */
 public class ClientRepositoryTest extends AbstractTestRepository {
 
-  @Test
-  public void test() {
-    ClientRepository repo = getRepository(ClientRepository.class);
-    Client client = repo.findByClientId("cool_app_id");
-    Map<String, String> attr = client.getAttributes();
-    assertEquals("foo-university", attr.get("university"));
-  }
+	@Test
+	public void test() {
+		ClientRepository repo = getRepository(ClientRepository.class);
+		Client client = repo.findByClientId("cool_app_id");
+		Map<String, String> attr = client.getAttributes();
+		assertEquals("foo-university", attr.get("university"));
+	}
 
-  /**
-   * Create a client, create some child-objects (authorization request, access token).
-   * Delete the client.
-   * Make sure the child objects are removed as well.
-   */
-  @Test
-  public void cascade() {
-    ClientRepository repo = getRepository(ClientRepository.class);
-    ResourceServerRepository resourceServerRepository = getRepository(ResourceServerRepository.class);
-    AccessTokenRepository accessTokenRepository = getRepository(AccessTokenRepository.class);
-    AuthorizationRequestRepository authorizationRequestRepository = getRepository(AuthorizationRequestRepository.class);
+	/**
+	 * Create a client, create some child-objects (authorization request, access
+	 * token). Delete the client. Make sure the child objects are removed as
+	 * well.
+	 */
+	@Test
+	public void cascade() {
+		ClientRepository repo = getRepository(ClientRepository.class);
+		ResourceServerRepository resourceServerRepository = getRepository(ResourceServerRepository.class);
+		AccessTokenRepository accessTokenRepository = getRepository(AccessTokenRepository.class);
+		AuthorizationRequestRepository authorizationRequestRepository = getRepository(AuthorizationRequestRepository.class);
 
-    // Create and save a resource Server
-    ResourceServer r = new ResourceServer();
-    r.setKey("key");
-    r.setName("name");
-    r.setContactName("contactname");
-    r.setSecret("secret");
+		// Create and save a resource Server
+		ResourceServer r = new ResourceServer();
+		r.setKey("key");
+		r.setName("name");
+		r.setContactName("contactname");
+		r.setSecret("secret");
 
-    r = resourceServerRepository.save(r);
+		r = resourceServerRepository.save(r);
 
-    // Create and save a client
-    Client client = new Client();
-    client.setName("name");
-    client.setClientId("clientid");
+		// Create and save a client
+		Client client = new Client();
+		client.setName("name");
+		client.setClientId("clientid");
 
-    // Let them meet each other
-    r.setClients(new HashSet(Arrays.asList(client)));
-    client.setResourceServer(r);
+		// Let them meet each other
+		r.setClients(new HashSet(Arrays.asList(client)));
+		client.setResourceServer(r);
 
-    client = repo.save(client);
+		client = repo.save(client);
 
+		// Create an access token
+		AccessToken at = new AccessToken("mytoken", new AuthenticatedPrincipal(
+				"username"), client, 0, null);
+		at = accessTokenRepository.save(at);
+		assertEquals(at, accessTokenRepository.findOne(at.getId()));
 
-    // Create an access token
-    AccessToken at = new AccessToken("mytoken", new AuthenticatedPrincipal("username"), client, 0, null);
-    at = accessTokenRepository.save(at);
-    assertEquals(at, accessTokenRepository.findOne(at.getId()));
+		// Create an authorization request
+		AuthorizationRequest ar = new AuthorizationRequest("foo", "faa", "boo",
+				null, "boo", "boo");
+		ar.setClient(client);
+		ar = authorizationRequestRepository.save(ar);
+		assertEquals(ar, authorizationRequestRepository.findOne(ar.getId()));
 
-    // Create an authorization request
-    AuthorizationRequest ar = new AuthorizationRequest("foo", "faa", "boo", null, "boo", "boo");
-    ar.setClient(client);
-    ar = authorizationRequestRepository.save(ar);
-    assertEquals(ar, authorizationRequestRepository.findOne(ar.getId()));
+		// Make sure things are saved; the relation between clients and access
+		// tokens is unidirectional; therefore a
+		// delete would not work with attached entities.
+		entityManager.clear();
 
-    // Make sure things are saved; the relation between clients and access tokens is unidirectional; therefore a
-    // delete would not work with attached entities.
-    entityManager.clear();
+		final long clientId = client.getId();
+		repo.delete(client);
+		assertNull(repo.findOne(clientId));
 
-    final long clientId = client.getId();
-    repo.delete(client);
-    assertNull(repo.findOne(clientId));
+		assertNull(accessTokenRepository.findOne(at.getId()));
+		assertNull(authorizationRequestRepository.findOne(ar.getId()));
 
-    assertNull(accessTokenRepository.findOne(at.getId()));
-    assertNull(authorizationRequestRepository.findOne(ar.getId()));
-
-  }
+	}
 }

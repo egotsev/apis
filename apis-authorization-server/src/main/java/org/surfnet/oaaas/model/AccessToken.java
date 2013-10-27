@@ -34,7 +34,7 @@ import org.surfnet.oaaas.auth.principal.AuthenticatedPrincipal;
  * Representation of an <a
  * href="http://tools.ietf.org/html/draft-ietf-oauth-v2-30#section-1.4"
  * >AccessToken</a>
- *
+ * 
  */
 @SuppressWarnings("serial")
 @Entity
@@ -44,183 +44,187 @@ import org.surfnet.oaaas.auth.principal.AuthenticatedPrincipal;
 @XmlRootElement
 public class AccessToken extends AbstractEntity {
 
-  @Column(unique = true)
-  @NotNull
-  private String token;
+	@Column(unique = true)
+	@NotNull
+	private String token;
 
-  @Column(unique = true, nullable = true)
-  private String refreshToken;
+	@Column(unique = true, nullable = true)
+	private String refreshToken;
 
-  @Transient
-  @XmlTransient
-  private AuthenticatedPrincipal principal;
+	@Transient
+	@XmlTransient
+	private AuthenticatedPrincipal principal;
 
-  @Lob
-  @Column(length = 16384)
-  @NotNull
-  @XmlTransient
-  private String encodedPrincipal;
+	@Lob
+	@Column(length = 16384)
+	@NotNull
+	@XmlTransient
+	private String encodedPrincipal;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "client_id", nullable = false, updatable = false)
-  @XmlTransient
-  private Client client;
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "client_id", nullable = false, updatable = false)
+	@XmlTransient
+	private Client client;
 
-  @Column
-  private long expires;
+	@Column
+	private long expires;
 
-  @ElementCollection(fetch= FetchType.EAGER)
-  private List<String> scopes;
+	@ElementCollection(fetch = FetchType.EAGER)
+	private List<String> scopes;
 
-  @Column
-  @NotNull
-  private String resourceOwnerId;
+	@Column
+	@NotNull
+	private String resourceOwnerId;
 
-  public AccessToken() {
-    super();
-  }
+	public AccessToken() {
+		super();
+	}
 
-  public AccessToken(String token, AuthenticatedPrincipal principal, Client client, long expires, List<String> scopes) {
-    this(token, principal, client, expires, scopes, null);
-  }
+	public AccessToken(String token, AuthenticatedPrincipal principal,
+			Client client, long expires, List<String> scopes) {
+		this(token, principal, client, expires, scopes, null);
+	}
 
-  public AccessToken(String token, AuthenticatedPrincipal principal, Client client, long expires, List<String> scopes,
-      String refreshToken) {
-    super();
-    this.token = token;
-    this.principal = principal;
-    this.encodePrincipal();
-    this.resourceOwnerId = principal.getName();
-    this.client = client;
-    this.expires = expires;
-    this.scopes = scopes;
-    this.refreshToken = refreshToken;
-    invariant();
-  }
+	public AccessToken(String token, AuthenticatedPrincipal principal,
+			Client client, long expires, List<String> scopes,
+			String refreshToken) {
+		super();
+		this.token = token;
+		this.principal = principal;
+		this.encodePrincipal();
+		this.resourceOwnerId = principal.getName();
+		this.client = client;
+		this.expires = expires;
+		this.scopes = scopes;
+		this.refreshToken = refreshToken;
+		invariant();
+	}
 
-  private void invariant() {
-    Assert.notNull(token, "Token may not be null");
-    Assert.notNull(client, "Client may not be null");
-    Assert.notNull(principal, "AuthenticatedPrincipal may not be null");
-    Assert.isTrue(StringUtils.isNotBlank(principal.getName()), "AuthenticatedPrincipal#name may not be null");
-  }
+	private void invariant() {
+		Assert.notNull(token, "Token may not be null");
+		Assert.notNull(client, "Client may not be null");
+		Assert.notNull(principal, "AuthenticatedPrincipal may not be null");
+		Assert.isTrue(StringUtils.isNotBlank(principal.getName()),
+				"AuthenticatedPrincipal#name may not be null");
+	}
 
-  @PreUpdate
-  @PrePersist
-  public void encodePrincipal() {
-    if (principal != null) {
-      this.encodedPrincipal = principal.serialize();
-    }
-  }
+	@PreUpdate
+	@PrePersist
+	public void encodePrincipal() {
+		if (principal != null) {
+			this.encodedPrincipal = principal.serialize();
+		}
+	}
 
-  @PostLoad
-  @PostPersist
-  @PostUpdate
-  public void decodePrincipal() {
-    if (StringUtils.isNotBlank(encodedPrincipal)) {
-      this.principal = AuthenticatedPrincipal.deserialize(encodedPrincipal);
-    }
-  }
+	@PostLoad
+	@PostPersist
+	@PostUpdate
+	public void decodePrincipal() {
+		if (StringUtils.isNotBlank(encodedPrincipal)) {
+			this.principal = AuthenticatedPrincipal
+					.deserialize(encodedPrincipal);
+		}
+	}
 
-  /**
-   * @return the token
-   */
-  public String getToken() {
-    return token;
-  }
+	/**
+	 * @return the token
+	 */
+	public String getToken() {
+		return token;
+	}
 
-  /**
-   * @param token
-   *          the token to set
-   */
-  public void setToken(String token) {
-    this.token = token;
-  }
+	/**
+	 * @param token
+	 *            the token to set
+	 */
+	public void setToken(String token) {
+		this.token = token;
+	}
 
-  /**
-   * @return the client
-   */
-  public Client getClient() {
-    return client;
-  }
+	/**
+	 * @return the client
+	 */
+	public Client getClient() {
+		return client;
+	}
 
-  /**
-   * @param client
-   *          the client to set
-   */
-  public void setClient(Client client) {
-    this.client = client;
-  }
+	/**
+	 * @param client
+	 *            the client to set
+	 */
+	public void setClient(Client client) {
+		this.client = client;
+	}
 
-  /**
-   * @return the expires
-   */
-  public long getExpires() {
-    return expires;
-  }
+	/**
+	 * @return the expires
+	 */
+	public long getExpires() {
+		return expires;
+	}
 
-  /**
-   * @param expires
-   *          the expires to set
-   */
-  public void setExpires(long expires) {
-    this.expires = expires;
-  }
+	/**
+	 * @param expires
+	 *            the expires to set
+	 */
+	public void setExpires(long expires) {
+		this.expires = expires;
+	}
 
-  /**
-   * @return the scopes
-   */
-  public List<String> getScopes() {
-    return scopes;
-  }
+	/**
+	 * @return the scopes
+	 */
+	public List<String> getScopes() {
+		return scopes;
+	}
 
-  /**
-   * @param scopes
-   *          the scopes to set
-   */
-  public void setScopes(List<String> scopes) {
-    this.scopes = scopes;
-  }
+	/**
+	 * @param scopes
+	 *            the scopes to set
+	 */
+	public void setScopes(List<String> scopes) {
+		this.scopes = scopes;
+	}
 
-  /**
-   * @return the principal
-   */
-  public AuthenticatedPrincipal getPrincipal() {
-    return principal;
-  }
+	/**
+	 * @return the principal
+	 */
+	public AuthenticatedPrincipal getPrincipal() {
+		return principal;
+	}
 
-  /**
-   * @return the encodedPrincipal
-   */
-  public String getEncodedPrincipal() {
-    return encodedPrincipal;
-  }
+	/**
+	 * @return the encodedPrincipal
+	 */
+	public String getEncodedPrincipal() {
+		return encodedPrincipal;
+	}
 
-  /**
-   * @return the refreshToken
-   */
-  public String getRefreshToken() {
-    return refreshToken;
-  }
+	/**
+	 * @return the refreshToken
+	 */
+	public String getRefreshToken() {
+		return refreshToken;
+	}
 
-  /**
-   * @param refreshToken
-   *          the refreshToken to set
-   */
-  public void setRefreshToken(String refreshToken) {
-    this.refreshToken = refreshToken;
-  }
+	/**
+	 * @param refreshToken
+	 *            the refreshToken to set
+	 */
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 
-  /**
-   * @return the resourceOwnerId
-   */
-  public String getResourceOwnerId() {
-    return resourceOwnerId;
-  }
+	/**
+	 * @return the resourceOwnerId
+	 */
+	public String getResourceOwnerId() {
+		return resourceOwnerId;
+	}
 
-  @XmlElement
-  public String getClientId() {
-    return client.getClientId();
-  }
+	@XmlElement
+	public String getClientId() {
+		return client.getClientId();
+	}
 
 }

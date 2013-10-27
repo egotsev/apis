@@ -48,80 +48,100 @@ import org.surfnet.oaaas.repository.AuthorizationRequestRepository;
 @Named("formConsentHandler")
 public class FormUserConsentHandler extends AbstractUserConsentHandler {
 
-  private static final String USER_OAUTH_APPROVAL = "user_oauth_approval";
+	private static final String USER_OAUTH_APPROVAL = "user_oauth_approval";
 
-  @Inject
-  private AccessTokenRepository accessTokenRepository;
+	@Inject
+	private AccessTokenRepository accessTokenRepository;
 
-  @Inject
-  private AuthorizationRequestRepository authorizationRequestRepository;
+	@Inject
+	private AuthorizationRequestRepository authorizationRequestRepository;
 
-  @Override
-  public void handleUserConsent(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-      String authStateValue, String returnUri, Client client) throws IOException, ServletException {
-    if (isUserConsentPost(request)) {
-      if (processForm(request, response)) {
-        chain.doFilter(request, response);
-      }
-    } else {
-      processInitial(request, response, chain, returnUri, authStateValue, client);
-    }
-  }
+	@Override
+	public void handleUserConsent(HttpServletRequest request,
+			HttpServletResponse response, FilterChain chain,
+			String authStateValue, String returnUri, Client client)
+			throws IOException, ServletException {
+		if (isUserConsentPost(request)) {
+			if (processForm(request, response)) {
+				chain.doFilter(request, response);
+			}
+		} else {
+			processInitial(request, response, chain, returnUri, authStateValue,
+					client);
+		}
+	}
 
-  private boolean isUserConsentPost(HttpServletRequest request) {
-    String oauthApproval = request.getParameter(USER_OAUTH_APPROVAL);
-    return request.getMethod().equals(HttpMethod.POST.toString()) && StringUtils.isNotBlank(oauthApproval);
-  }
+	private boolean isUserConsentPost(HttpServletRequest request) {
+		String oauthApproval = request.getParameter(USER_OAUTH_APPROVAL);
+		return request.getMethod().equals(HttpMethod.POST.toString())
+				&& StringUtils.isNotBlank(oauthApproval);
+	}
 
-  private void processInitial(HttpServletRequest request, ServletResponse response, FilterChain chain,
-      String returnUri, String authStateValue, Client client) throws IOException, ServletException {
-    AuthenticatedPrincipal principal = (AuthenticatedPrincipal) request.getAttribute(AbstractAuthenticator.PRINCIPAL);
-    List<AccessToken> tokens = accessTokenRepository.findByResourceOwnerIdAndClient(principal.getName(), client);
-    if (!CollectionUtils.isEmpty(tokens)) {
-      // If another token is already present for this resource owner and client, no new consent should be requested
-      List<String> grantedScopes = tokens.get(0).getScopes(); // take the scopes of the first access token found.
-      setGrantedScopes(request, grantedScopes.toArray(new String[grantedScopes.size()]));
-      chain.doFilter(request, response);
-    } else {
-      AuthorizationRequest authorizationRequest = authorizationRequestRepository.findByAuthState(authStateValue);
-      request.setAttribute("requestedScopes", authorizationRequest.getRequestedScopes());
-      request.setAttribute("client", client);
-      request.setAttribute(AUTH_STATE, authStateValue);
-      request.setAttribute("actionUri", returnUri);
-      request.getRequestDispatcher(getUserConsentUrl()).forward(request, response);
-    }
+	private void processInitial(HttpServletRequest request,
+			ServletResponse response, FilterChain chain, String returnUri,
+			String authStateValue, Client client) throws IOException,
+			ServletException {
+		AuthenticatedPrincipal principal = (AuthenticatedPrincipal) request
+				.getAttribute(AbstractAuthenticator.PRINCIPAL);
+		List<AccessToken> tokens = accessTokenRepository
+				.findByResourceOwnerIdAndClient(principal.getName(), client);
+		if (!CollectionUtils.isEmpty(tokens)) {
+			// If another token is already present for this resource owner and
+			// client, no new consent should be requested
+			List<String> grantedScopes = tokens.get(0).getScopes(); // take the
+																	// scopes of
+																	// the first
+																	// access
+																	// token
+																	// found.
+			setGrantedScopes(request,
+					grantedScopes.toArray(new String[grantedScopes.size()]));
+			chain.doFilter(request, response);
+		} else {
+			AuthorizationRequest authorizationRequest = authorizationRequestRepository
+					.findByAuthState(authStateValue);
+			request.setAttribute("requestedScopes",
+					authorizationRequest.getRequestedScopes());
+			request.setAttribute("client", client);
+			request.setAttribute(AUTH_STATE, authStateValue);
+			request.setAttribute("actionUri", returnUri);
+			request.getRequestDispatcher(getUserConsentUrl()).forward(request,
+					response);
+		}
 
-  }
+	}
 
-  /**
-   * 
-   * Return the path to the User Consent page. Subclasses can use this hook by
-   * providing a custom html/jsp.
-   * 
-   * @return the path to the User Consent page
-   */
-  protected String getUserConsentUrl() {
-    return "/WEB-INF/jsp/userconsent.jsp";
-  }
+	/**
+	 * 
+	 * Return the path to the User Consent page. Subclasses can use this hook by
+	 * providing a custom html/jsp.
+	 * 
+	 * @return the path to the User Consent page
+	 */
+	protected String getUserConsentUrl() {
+		return "/WEB-INF/jsp/userconsent.jsp";
+	}
 
-  private boolean processForm(final HttpServletRequest request, final HttpServletResponse response)
-      throws ServletException, IOException {
-    if (Boolean.valueOf(request.getParameter(USER_OAUTH_APPROVAL))) {
-      setAuthStateValue(request, request.getParameter(AUTH_STATE));
-      String[] scopes = request.getParameterValues(GRANTED_SCOPES);
-      setGrantedScopes(request, scopes);
-      return true;
-    } else {
-      request.getRequestDispatcher(getUserConsentDeniedUrl()).forward(request, response);
-      return false;
-    }
-  }
+	private boolean processForm(final HttpServletRequest request,
+			final HttpServletResponse response) throws ServletException,
+			IOException {
+		if (Boolean.valueOf(request.getParameter(USER_OAUTH_APPROVAL))) {
+			setAuthStateValue(request, request.getParameter(AUTH_STATE));
+			String[] scopes = request.getParameterValues(GRANTED_SCOPES);
+			setGrantedScopes(request, scopes);
+			return true;
+		} else {
+			request.getRequestDispatcher(getUserConsentDeniedUrl()).forward(
+					request, response);
+			return false;
+		}
+	}
 
-  /**
-   * @return
-   */
-  protected String getUserConsentDeniedUrl() {
-    return "/WEB-INF/jsp/userconsent_denied.jsp";
-  }
+	/**
+	 * @return
+	 */
+	protected String getUserConsentDeniedUrl() {
+		return "/WEB-INF/jsp/userconsent_denied.jsp";
+	}
 
 }

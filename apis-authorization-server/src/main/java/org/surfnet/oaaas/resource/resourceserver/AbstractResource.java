@@ -41,102 +41,110 @@ import org.surfnet.oaaas.repository.ExceptionTranslator;
  */
 public class AbstractResource {
 
-  public static final String SCOPE_READ = "read";
-  public static final String SCOPE_WRITE = "write";
+	public static final String SCOPE_READ = "read";
+	public static final String SCOPE_WRITE = "write";
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractResource.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(AbstractResource.class);
 
-  private final static String LINE_SEPARATOR = System.getProperty("line.separator");
+	private final static String LINE_SEPARATOR = System
+			.getProperty("line.separator");
 
-  @Inject
-  private ExceptionTranslator exceptionTranslator;
+	@Inject
+	private ExceptionTranslator exceptionTranslator;
 
-  @Inject
-  protected Validator validator;
+	@Inject
+	protected Validator validator;
 
-  public Response buildErrorResponse(Exception e) {
-    final Throwable jpaException = exceptionTranslator.translate(e);
-    Response.Status s;
-    String reason;
-    if (jpaException instanceof EntityExistsException) {
-      s = Response.Status.BAD_REQUEST;
-      reason = "Violating unique constraints";
-    } else if (jpaException instanceof ConstraintViolationException) {
-      ConstraintViolationException constraintViolationException = (ConstraintViolationException) jpaException;
-      return buildViolationErrorResponse(constraintViolationException.getConstraintViolations());
-    } else {
-      s = Response.Status.INTERNAL_SERVER_ERROR;
-      reason = "Internal server error";
-    }
-    LOG.info("Responding with error '" + s + "', '" + reason + "'. Cause attached.", e);
-    return Response
-        .status(s)
-        .entity(reason)
-        .build();
-  }
+	public Response buildErrorResponse(Exception e) {
+		final Throwable jpaException = exceptionTranslator.translate(e);
+		Response.Status s;
+		String reason;
+		if (jpaException instanceof EntityExistsException) {
+			s = Response.Status.BAD_REQUEST;
+			reason = "Violating unique constraints";
+		} else if (jpaException instanceof ConstraintViolationException) {
+			ConstraintViolationException constraintViolationException = (ConstraintViolationException) jpaException;
+			return buildViolationErrorResponse(constraintViolationException
+					.getConstraintViolations());
+		} else {
+			s = Response.Status.INTERNAL_SERVER_ERROR;
+			reason = "Internal server error";
+		}
+		LOG.info("Responding with error '" + s + "', '" + reason
+				+ "'. Cause attached.", e);
+		return Response.status(s).entity(reason).build();
+	}
 
+	protected Response buildViolationErrorResponse(
+			Set<ConstraintViolation<?>> violations) {
+		ValidationErrorResponse responseBody = new ValidationErrorResponse(
+				violations);
+		return Response.status(Response.Status.BAD_REQUEST)
+				.entity(responseBody).build();
+	}
 
-  protected Response buildViolationErrorResponse(Set<ConstraintViolation<?>> violations) {
-    ValidationErrorResponse responseBody = new ValidationErrorResponse(violations);
-    return Response
-        .status(Response.Status.BAD_REQUEST)
-        .entity(responseBody)
-        .build();
-  }
+	protected String getUserId(HttpServletRequest request) {
+		return getAuthenticatedPrincipal(request).getName();
+	}
 
-  protected String getUserId(HttpServletRequest request) {
-    return getAuthenticatedPrincipal(request).getName();
-  }
+	protected boolean isAdminPrincipal(HttpServletRequest request) {
+		return getAuthenticatedPrincipal(request).isAdminPrincipal();
+	}
 
+	protected void validate(AbstractEntity entity) {
+		Set<ConstraintViolation<AbstractEntity>> validate = validator
+				.validate(entity);
+		if (!CollectionUtils.isEmpty(validate)) {
+			throw new ConstraintViolationException((Set) validate);
+		}
+	}
 
-  protected boolean isAdminPrincipal(HttpServletRequest request) {
-    return getAuthenticatedPrincipal(request).isAdminPrincipal();
-  }
+	public String generateRandom() {
+		return UUID.randomUUID().toString();
+	}
 
+	public Response validateScope(HttpServletRequest request,
+			List<String> requiredScopes) {
+		VerifyTokenResponse verifyTokenResponse = (VerifyTokenResponse) request
+				.getAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE);
+		List<String> grantedScopes = verifyTokenResponse.getScopes();
+		for (String requiredScope : requiredScopes) {
+			if (!grantedScopes.contains(requiredScope)) {
+				LOG.debug(
+						"Resource required scopes ({}) which the client has not been granted ({})",
+						requiredScopes, grantedScopes);
+				return Response
+						.status(HttpServletResponse.SC_BAD_REQUEST)
+						.entity(new ErrorResponse(
+								OAuth2Validator.ValidationResponse.SCOPE_NOT_VALID
+										.getValue(),
+								OAuth2Validator.ValidationResponse.SCOPE_NOT_VALID
+										.getDescription())).build();
+			}
+		}
+		return null;
+	}
 
-  protected void validate(AbstractEntity entity) {
-    Set<ConstraintViolation<AbstractEntity>> validate = validator.validate(entity);
-    if (!CollectionUtils.isEmpty(validate)) {
-      throw new ConstraintViolationException((Set)validate);
-    }
-  }
+	private AuthenticatedPrincipal getAuthenticatedPrincipal(
+			HttpServletRequest request) {
+		VerifyTokenResponse verifyTokenResponse = (VerifyTokenResponse) request
+				.getAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE);
+		return verifyTokenResponse.getPrincipal();
+	}
 
-  public String generateRandom() {
-    return UUID.randomUUID().toString();
-  }
+	protected <T> List<T> addAll(Iterator<T> iterator) {
+		List<T> result = new ArrayList<T>();
+		while (iterator.hasNext()) {
+			result.add(iterator.next());
+		}
+		return result;
+	}
 
-  public Response validateScope(HttpServletRequest request, List<String> requiredScopes) {
-    VerifyTokenResponse verifyTokenResponse = (VerifyTokenResponse) request.getAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE);
-    List<String> grantedScopes = verifyTokenResponse.getScopes();
-    for (String requiredScope : requiredScopes) {
-      if (!grantedScopes.contains(requiredScope)) {
-        LOG.debug("Resource required scopes ({}) which the client has not been granted ({})", requiredScopes, grantedScopes);
-        return Response
-            .status(HttpServletResponse.SC_BAD_REQUEST)
-            .entity(new ErrorResponse(OAuth2Validator.ValidationResponse.SCOPE_NOT_VALID.getValue(),
-                OAuth2Validator.ValidationResponse.SCOPE_NOT_VALID.getDescription()))
-                .build();
-      }
-    }
-    return null;
-  }
-
-  private AuthenticatedPrincipal getAuthenticatedPrincipal(HttpServletRequest request) {
-    VerifyTokenResponse verifyTokenResponse = (VerifyTokenResponse) request.getAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE);
-    return verifyTokenResponse.getPrincipal();
-  }
-
-  protected <T> List<T> addAll(Iterator<T> iterator) {
-    List<T> result = new ArrayList<T>();
-    while (iterator.hasNext()) {
-      result.add(iterator.next());
-    }
-    return result;
-  }
-
-  protected Response response(Object response ) {
-    Response.ResponseBuilder responseBuilder = (response == null ? Response.status(Response.Status.NOT_FOUND) : Response.ok(response));
-    return responseBuilder.build();
-  }
+	protected Response response(Object response) {
+		Response.ResponseBuilder responseBuilder = (response == null ? Response
+				.status(Response.Status.NOT_FOUND) : Response.ok(response));
+		return responseBuilder.build();
+	}
 
 }

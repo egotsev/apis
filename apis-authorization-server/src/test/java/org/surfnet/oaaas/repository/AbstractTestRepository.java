@@ -35,57 +35,57 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
  */
 public class AbstractTestRepository {
 
-  private static final String PERSISTENCE_UNIT_NAME = "oaaas";
-  private static final Class<PersistenceProviderImpl> PERSISTENCE_PROVIDER_CLASS = PersistenceProviderImpl.class;
-  private static JpaRepositoryFactory factory;
-  protected static EntityManager entityManager;
+	private static final String PERSISTENCE_UNIT_NAME = "oaaas";
+	private static final Class<PersistenceProviderImpl> PERSISTENCE_PROVIDER_CLASS = PersistenceProviderImpl.class;
+	private static JpaRepositoryFactory factory;
+	protected static EntityManager entityManager;
 
-  @BeforeClass
-  public static void beforeClass() {
-    DataSource dataSource = dataSource();
-    entityManager = entityManager(dataSource);
-    initFlyway(dataSource);
-    factory = new JpaRepositoryFactory(entityManager);
-  }
+	@BeforeClass
+	public static void beforeClass() {
+		DataSource dataSource = dataSource();
+		entityManager = entityManager(dataSource);
+		initFlyway(dataSource);
+		factory = new JpaRepositoryFactory(entityManager);
+	}
 
-  public <T> T getRepository(Class<T> repositoryInterface) {
-    return factory.getRepository(repositoryInterface);
-  }
+	public <T> T getRepository(Class<T> repositoryInterface) {
+		return factory.getRepository(repositoryInterface);
+	}
 
-  private static void initFlyway(DataSource dataSource) {
-    final Flyway flyway = new Flyway();
-    flyway.setInitOnMigrate(true);
-    flyway.setDataSource(dataSource);
-    flyway.setLocations("db/migration/hsqldb");
-    flyway.migrate();
-  }
+	private static void initFlyway(DataSource dataSource) {
+		final Flyway flyway = new Flyway();
+		flyway.setInitOnMigrate(true);
+		flyway.setDataSource(dataSource);
+		flyway.setLocations("db/migration/hsqldb");
+		flyway.migrate();
+	}
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private static EntityManager entityManager(DataSource dataSource) {
-    LocalContainerEntityManagerFactoryBean emfBean = new LocalContainerEntityManagerFactoryBean();
-    emfBean.setDataSource(dataSource);
-    emfBean.setPersistenceUnitName(PERSISTENCE_UNIT_NAME);
-    emfBean.setPersistenceProviderClass(PERSISTENCE_PROVIDER_CLASS);
-    emfBean.afterPropertiesSet();
-    Map map = new HashMap<String, String>();
-    map.put("openjpa.ConnectionFactoryProperties", "PrintParameters=true");
-    return emfBean.getObject().createEntityManager(map);
-  }
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static EntityManager entityManager(DataSource dataSource) {
+		LocalContainerEntityManagerFactoryBean emfBean = new LocalContainerEntityManagerFactoryBean();
+		emfBean.setDataSource(dataSource);
+		emfBean.setPersistenceUnitName(PERSISTENCE_UNIT_NAME);
+		emfBean.setPersistenceProviderClass(PERSISTENCE_PROVIDER_CLASS);
+		emfBean.afterPropertiesSet();
+		Map map = new HashMap<String, String>();
+		map.put("openjpa.ConnectionFactoryProperties", "PrintParameters=true");
+		return emfBean.getObject().createEntityManager(map);
+	}
 
-  private static DataSource dataSource() {
-    DataSource dataSource = new DataSource();
-    dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-    dataSource.setUrl("jdbc:hsqldb:file:target/db;shutdown=true");
-    dataSource.setUsername("sa");
-    dataSource.setPassword("");
-    return dataSource;
-  }
+	private static DataSource dataSource() {
+		DataSource dataSource = new DataSource();
+		dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
+		dataSource.setUrl("jdbc:hsqldb:file:target/db;shutdown=true");
+		dataSource.setUsername("sa");
+		dataSource.setPassword("");
+		return dataSource;
+	}
 
-  /**
-   * @return the entityManager
-   */
-  public static EntityManager getEntityManager() {
-    return entityManager;
-  }
+	/**
+	 * @return the entityManager
+	 */
+	public static EntityManager getEntityManager() {
+		return entityManager;
+	}
 
 }

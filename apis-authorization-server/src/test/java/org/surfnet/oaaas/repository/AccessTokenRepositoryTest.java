@@ -25,21 +25,22 @@ import org.surfnet.oaaas.model.AccessToken;
 
 /**
  * {@link Test} for {@link AccessTokenRepository}
- *
+ * 
  */
 public class AccessTokenRepositoryTest extends AbstractTestRepository {
 
-  @Test
-  public void testPrincipal() {
-    AccessTokenRepository repo = getRepository(AccessTokenRepository.class);
-    AccessToken token = repo.findByToken("00-11-22-33");
-    assertEquals("it-test-enduser",token.getPrincipal().getName());
-  }
+	@Test
+	public void testPrincipal() {
+		AccessTokenRepository repo = getRepository(AccessTokenRepository.class);
+		AccessToken token = repo.findByToken("00-11-22-33");
+		assertEquals("it-test-enduser", token.getPrincipal().getName());
+	}
 
-  @Test
-  public void testCountByResourceOwnerid() {
-    AccessTokenRepository repo = getRepository(AccessTokenRepository.class);
-    Number countByResourceOwnerId = repo.countByUniqueResourceOwnerIdAndClientId(99999);
-    assertEquals(1L,countByResourceOwnerId.longValue());
-  }
+	@Test
+	public void testCountByResourceOwnerid() {
+		AccessTokenRepository repo = getRepository(AccessTokenRepository.class);
+		Number countByResourceOwnerId = repo
+				.countByUniqueResourceOwnerIdAndClientId(99999);
+		assertEquals(1L, countByResourceOwnerId.longValue());
+	}
 }

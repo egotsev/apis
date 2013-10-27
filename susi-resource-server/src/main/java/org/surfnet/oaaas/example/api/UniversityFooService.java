@@ -27,31 +27,31 @@ import com.yammer.dropwizard.config.Environment;
 
 /**
  * Main entry
- *
+ * 
  */
 public class UniversityFooService extends Service<UniversityFooConfiguration> {
 
-  /*
-   * Used by DropWizard to bootstrap the application. See README.md
-   */
-  public static void main(String[] args) throws Exception {
-    if (args == null || args.length != 2) {
-      args = new String[] { "server", "university-foo-local.yml" };
-    }
-    new UniversityFooService().run(args);
-  }
+	/*
+	 * Used by DropWizard to bootstrap the application. See README.md
+	 */
+	public static void main(String[] args) throws Exception {
+		if (args == null || args.length != 2) {
+			args = new String[] { "server", "university-foo-local.yml" };
+		}
+		new UniversityFooService().run(args);
+	}
 
-  private UniversityFooService() {
-    super("university-foo");
-  }
+	private UniversityFooService() {
+		super("university-foo");
+	}
 
-  @Override
-  protected void initialize(UniversityFooConfiguration configuration, Environment environment)
-      throws ClassNotFoundException {
-    environment
-        .addProvider(new OAuthProvider<AuthenticatedPrincipal>(new OAuthAuthenticator(configuration), "protected-resources"));
-    environment.addResource(new UniversityResource());
-    
-  }
+	@Override
+	protected void initialize(UniversityFooConfiguration configuration,
+			Environment environment) throws ClassNotFoundException {
+		environment.addProvider(new OAuthProvider<AuthenticatedPrincipal>(
+				new OAuthAuthenticator(configuration), "protected-resources"));
+		environment.addResource(new UniversityResource());
+
+	}
 
 }

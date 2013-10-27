@@ -37,32 +37,34 @@ import static org.mockito.Mockito.when;
 
 public class AccessTokenResourceTest {
 
-  @InjectMocks
-  private AccessTokenResource accessTokenResource;
+	@InjectMocks
+	private AccessTokenResource accessTokenResource;
 
-  @Mock
-  private HttpServletRequest request;
+	@Mock
+	private HttpServletRequest request;
 
-  @Mock
-  private AccessTokenRepository accessTokenRepository;
+	@Mock
+	private AccessTokenRepository accessTokenRepository;
 
-  @Before
-  public void before() {
-    MockitoAnnotations.initMocks(this);
-    VerifyTokenResponse verifyTokenResponse = new VerifyTokenResponse();
-    verifyTokenResponse.setPrincipal(new AuthenticatedPrincipal("user"));
-    verifyTokenResponse.setScopes(Arrays.asList("read"));
-    when(request.getAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE)).thenReturn(verifyTokenResponse);
-  }
+	@Before
+	public void before() {
+		MockitoAnnotations.initMocks(this);
+		VerifyTokenResponse verifyTokenResponse = new VerifyTokenResponse();
+		verifyTokenResponse.setPrincipal(new AuthenticatedPrincipal("user"));
+		verifyTokenResponse.setScopes(Arrays.asList("read"));
+		when(
+				request.getAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE))
+				.thenReturn(verifyTokenResponse);
+	}
 
-  @Test
-  public void getAllWhenNoneFound() {
+	@Test
+	public void getAllWhenNoneFound() {
 
-    Response response = accessTokenResource.getAll(request);
+		Response response = accessTokenResource.getAll(request);
 
-    assertEquals(200, response.getStatus());
-    List tokens = (List) response.getEntity();
-    assertEquals(0, tokens.size());
-  }
+		assertEquals(200, response.getStatus());
+		List tokens = (List) response.getEntity();
+		assertEquals(0, tokens.size());
+	}
 
 }

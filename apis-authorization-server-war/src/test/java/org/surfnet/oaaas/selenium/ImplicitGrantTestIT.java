@@ -30,36 +30,37 @@ import static org.junit.matchers.JUnitMatchers.containsString;
  */
 public class ImplicitGrantTestIT extends SeleniumSupport {
 
-  @Test
-  public void implicitGrant() {
-    performImplicitGrant(true);
-    /*
-     * The second time no consent is required (as we have already an access token for the client/ principal name
-     */
-    restartBrowserSession();
-    performImplicitGrant(false);
-  }
+	@Test
+	public void implicitGrant() {
+		performImplicitGrant(true);
+		/*
+		 * The second time no consent is required (as we have already an access
+		 * token for the client/ principal name
+		 */
+		restartBrowserSession();
+		performImplicitGrant(false);
+	}
 
-  private void performImplicitGrant(boolean needConsent) {
+	private void performImplicitGrant(boolean needConsent) {
 
-    WebDriver webdriver = getWebDriver();
+		WebDriver webdriver = getWebDriver();
 
-    String responseType = "token";
-    String clientId = "it-test-client-grant";
-    String redirectUri = "http://localhost:8080/fourOhFour";
+		String responseType = "token";
+		String clientId = "it-test-client-grant";
+		String redirectUri = "http://localhost:8080/fourOhFour";
 
-    String url = String.format(
-        "%s/oauth2/authorize?response_type=%s&client_id=%s&redirect_uri=%s",
-        baseUrl(), responseType, clientId, redirectUri);
-    webdriver.get(url);
+		String url = String
+				.format("%s/oauth2/authorize?response_type=%s&client_id=%s&redirect_uri=%s",
+						baseUrl(), responseType, clientId, redirectUri);
+		webdriver.get(url);
 
-    login(webdriver, needConsent);
+		login(webdriver, needConsent);
 
-    // Token response
-    URI responseURI = URI.create(webdriver.getCurrentUrl());
+		// Token response
+		URI responseURI = URI.create(webdriver.getCurrentUrl());
 
-    assertThat(responseURI.getFragment(), containsString("access_token="));
-    assertThat(responseURI.getPath(), equalTo("/fourOhFour"));
-    assertThat(responseURI.getHost(), equalTo("localhost"));
-  }
+		assertThat(responseURI.getFragment(), containsString("access_token="));
+		assertThat(responseURI.getPath(), equalTo("/fourOhFour"));
+		assertThat(responseURI.getHost(), equalTo("localhost"));
+	}
 }

@@ -34,20 +34,19 @@ import static org.junit.Assert.assertNotNull;
 @ContextConfiguration(classes = SpringConfiguration.class)
 public class SpringConfigTest {
 
-  @Inject
-  private DataSource dataSource;
+	@Inject
+	private DataSource dataSource;
 
-  @Inject
-  private Flyway flyway;
+	@Inject
+	private Flyway flyway;
 
-  @Inject
-  private VerifyResource verifyResource;
+	@Inject
+	private VerifyResource verifyResource;
 
-
-  @Test
-  public void wire() {
-    assertNotNull(dataSource);
-    assertNotNull(flyway);
-    assertFalse(verifyResource.isJsonTypeInfoIncluded());
-  }
+	@Test
+	public void wire() {
+		assertNotNull(dataSource);
+		assertNotNull(flyway);
+		assertFalse(verifyResource.isJsonTypeInfoIncluded());
+	}
 }

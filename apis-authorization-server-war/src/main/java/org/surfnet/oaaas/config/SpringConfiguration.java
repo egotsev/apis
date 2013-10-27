@@ -49,114 +49,116 @@ import java.util.List;
  * The component scan can be used to add packages and exclusions to the default
  * package
  */
-@ComponentScan(basePackages = {"org.surfnet.oaaas.resource"})
+@ComponentScan(basePackages = { "org.surfnet.oaaas.resource" })
 @ImportResource("classpath:spring-repositories.xml")
 @EnableTransactionManagement
 public class SpringConfiguration {
 
-  private static final String PERSISTENCE_UNIT_NAME = "oaaas";
-  private static final Class<PersistenceProviderImpl> PERSISTENCE_PROVIDER_CLASS = PersistenceProviderImpl.class;
+	private static final String PERSISTENCE_UNIT_NAME = "oaaas";
+	private static final Class<PersistenceProviderImpl> PERSISTENCE_PROVIDER_CLASS = PersistenceProviderImpl.class;
 
-  @Inject
-  Environment env;
+	@Inject
+	Environment env;
 
-  @Bean
-  public javax.sql.DataSource dataSource() {
-    DataSource dataSource = new DataSource();
-    dataSource.setDriverClassName(env.getProperty("jdbc.driverClassName"));
-    dataSource.setUrl(env.getProperty("jdbc.url"));
-    dataSource.setUsername(env.getProperty("jdbc.username"));
-    dataSource.setPassword(env.getProperty("jdbc.password"));
-    dataSource.setTestOnBorrow(true);
-    dataSource.setValidationQuery("SELECT 1");
-    return dataSource;
-  }
+	@Bean
+	public javax.sql.DataSource dataSource() {
+		DataSource dataSource = new DataSource();
+		dataSource.setDriverClassName(env.getProperty("jdbc.driverClassName"));
+		dataSource.setUrl(env.getProperty("jdbc.url"));
+		dataSource.setUsername(env.getProperty("jdbc.username"));
+		dataSource.setPassword(env.getProperty("jdbc.password"));
+		dataSource.setTestOnBorrow(true);
+		dataSource.setValidationQuery("SELECT 1");
+		return dataSource;
+	}
 
-  @Bean
-  public Flyway flyway() {
-    final Flyway flyway = new Flyway();
-    flyway.setInitOnMigrate(true);
-    flyway.setDataSource(dataSource());
-    String locationsValue = env.getProperty("flyway.migrations.location");
-    String[] locations = locationsValue.split("\\s*,\\s*");
-    flyway.setLocations(locations);
-    flyway.migrate();
-    return flyway;
-  }
+	@Bean
+	public Flyway flyway() {
+		final Flyway flyway = new Flyway();
+		flyway.setInitOnMigrate(true);
+		flyway.setDataSource(dataSource());
+		String locationsValue = env.getProperty("flyway.migrations.location");
+		String[] locations = locationsValue.split("\\s*,\\s*");
+		flyway.setLocations(locations);
+		flyway.migrate();
+		return flyway;
+	}
 
-  @Bean
-  public JpaTransactionManager transactionManager() {
-    return new JpaTransactionManager();
-  }
+	@Bean
+	public JpaTransactionManager transactionManager() {
+		return new JpaTransactionManager();
+	}
 
-  @Bean
-  public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-    final LocalContainerEntityManagerFactoryBean emfBean = new LocalContainerEntityManagerFactoryBean();
-    emfBean.setDataSource(dataSource());
-    emfBean.setPersistenceUnitName(PERSISTENCE_UNIT_NAME);
-    emfBean.setPersistenceProviderClass(PERSISTENCE_PROVIDER_CLASS);
-    return emfBean;
-  }
+	@Bean
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+		final LocalContainerEntityManagerFactoryBean emfBean = new LocalContainerEntityManagerFactoryBean();
+		emfBean.setDataSource(dataSource());
+		emfBean.setPersistenceUnitName(PERSISTENCE_UNIT_NAME);
+		emfBean.setPersistenceProviderClass(PERSISTENCE_PROVIDER_CLASS);
+		return emfBean;
+	}
 
-  @Bean
-  public Filter oauth2AuthenticationFilter() {
-    final AuthenticationFilter authenticationFilter = new AuthenticationFilter();
-    authenticationFilter.setAuthenticator(authenticator());
-    return authenticationFilter;
-  }
+	@Bean
+	public Filter oauth2AuthenticationFilter() {
+		final AuthenticationFilter authenticationFilter = new AuthenticationFilter();
+		authenticationFilter.setAuthenticator(authenticator());
+		return authenticationFilter;
+	}
 
-  @Bean
-  public Filter oauth2UserConsentFilter() {
-    final UserConsentFilter userConsentFilter = new UserConsentFilter();
-    userConsentFilter.setUserConsentHandler(userConsentHandler());
-    return userConsentFilter;
-  }
+	@Bean
+	public Filter oauth2UserConsentFilter() {
+		final UserConsentFilter userConsentFilter = new UserConsentFilter();
+		userConsentFilter.setUserConsentHandler(userConsentHandler());
+		return userConsentFilter;
+	}
 
-  @Bean
-  public OAuth2Validator oAuth2Validator() {
-    return new OAuth2ValidatorImpl();
-  }
+	@Bean
+	public OAuth2Validator oAuth2Validator() {
+		return new OAuth2ValidatorImpl();
+	}
 
-  /**
-   * Returns the {@link AbstractAuthenticator} that is responsible for the
-   * authentication of Resource Owners.
-   *
-   * @return an {@link AbstractAuthenticator}
-   */
-  @Bean
-  public AbstractAuthenticator authenticator() {
-    AbstractAuthenticator authenticatorClass = (AbstractAuthenticator) getConfiguredBean("authenticatorClass");
-    try {
-      authenticatorClass.init(null);
-    } catch (ServletException e) {
-      throw new RuntimeException(e);
-    }
-    return authenticatorClass;
-  }
+	/**
+	 * Returns the {@link AbstractAuthenticator} that is responsible for the
+	 * authentication of Resource Owners.
+	 * 
+	 * @return an {@link AbstractAuthenticator}
+	 */
+	@Bean
+	public AbstractAuthenticator authenticator() {
+		AbstractAuthenticator authenticatorClass = (AbstractAuthenticator) getConfiguredBean("authenticatorClass");
+		try {
+			authenticatorClass.init(null);
+		} catch (ServletException e) {
+			throw new RuntimeException(e);
+		}
+		return authenticatorClass;
+	}
 
-  @Bean
-  public AbstractUserConsentHandler userConsentHandler() {
-    return (AbstractUserConsentHandler) getConfiguredBean("userConsentHandlerClass");
-  }
+	@Bean
+	public AbstractUserConsentHandler userConsentHandler() {
+		return (AbstractUserConsentHandler) getConfiguredBean("userConsentHandlerClass");
+	}
 
-  @Bean
-  public ExceptionTranslator exceptionTranslator() {
-    return new OpenJPAExceptionTranslator();
-  }
+	@Bean
+	public ExceptionTranslator exceptionTranslator() {
+		return new OpenJPAExceptionTranslator();
+	}
 
-  private Object getConfiguredBean(String className) {
-    try {
-      return getClass().getClassLoader().loadClass(env.getProperty(className)).newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
+	private Object getConfiguredBean(String className) {
+		try {
+			return getClass().getClassLoader()
+					.loadClass(env.getProperty(className)).newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-  @Bean
-  public Validator validator() {
-    // This LocalValidatorFactoryBean already uses the SpringConstraintValidatorFactory by default,
-    // so available validators will be wired automatically.
-    return new org.springframework.validation.beanvalidation.LocalValidatorFactoryBean();
-  }
+	@Bean
+	public Validator validator() {
+		// This LocalValidatorFactoryBean already uses the
+		// SpringConstraintValidatorFactory by default,
+		// so available validators will be wired automatically.
+		return new org.springframework.validation.beanvalidation.LocalValidatorFactoryBean();
+	}
 
 }

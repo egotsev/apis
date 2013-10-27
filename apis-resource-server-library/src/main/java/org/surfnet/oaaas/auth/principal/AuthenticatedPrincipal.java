@@ -40,179 +40,194 @@ import java.util.Map;
  */
 public class AuthenticatedPrincipal implements Serializable, Principal {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  @JsonIgnore
-  private final static ObjectMapper mapper = new ObjectMapper().enable(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY).enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL)
-          .setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL).setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
+	@JsonIgnore
+	private final static ObjectMapper mapper = new ObjectMapper()
+			.enable(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+			.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL)
+			.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL)
+			.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
 
+	private String name;
 
-  private String name;
+	private Collection<String> roles;
 
-  private Collection<String> roles;
+	private Collection<String> groups;
 
-  private Collection<String> groups;
+	private boolean adminPrincipal;
 
-  private boolean adminPrincipal;
+	/*
+	 * Extra attributes, depending on the authentication implementation. Note
+	 * that we only support String - String attributes as we need to be able to
+	 * persist the Principal generically
+	 */
+	private Map<String, String> attributes;
 
-  /*
-   * Extra attributes, depending on the authentication implementation. Note that we only support String - String attributes as we
-   * need to be able to persist the Principal generically
-   */
-  private Map<String, String> attributes;
+	public AuthenticatedPrincipal() {
+		super();
+	}
 
-  public AuthenticatedPrincipal() {
-    super();
-  }
+	public AuthenticatedPrincipal(String username) {
+		this(username, new ArrayList<String>());
+	}
 
-  public AuthenticatedPrincipal(String username) {
-    this(username, new ArrayList<String>());
-  }
+	public AuthenticatedPrincipal(String username, Collection<String> roles) {
+		this(username, roles, new HashMap<String, String>());
+	}
 
-  public AuthenticatedPrincipal(String username, Collection<String> roles) {
-    this(username, roles, new HashMap<String, String>());
-  }
+	public AuthenticatedPrincipal(String username, Collection<String> roles,
+			Map<String, String> attributes) {
+		this(username, roles, attributes, new ArrayList<String>());
+	}
 
-  public AuthenticatedPrincipal(String username, Collection<String> roles, Map<String, String> attributes) {
-    this(username, roles, attributes, new ArrayList<String>());
-  }
+	public AuthenticatedPrincipal(String username, Collection<String> roles,
+			Map<String, String> attributes, Collection<String> groups) {
+		this(username, roles, attributes, groups, false);
+	}
 
-  public AuthenticatedPrincipal(String username, Collection<String> roles, Map<String, String> attributes, Collection<String> groups) {
-    this(username, roles, attributes, groups, false);
-  }
+	public AuthenticatedPrincipal(String username, Collection<String> roles,
+			Map<String, String> attributes, Collection<String> groups,
+			boolean adminPrincipal) {
+		this.name = username;
+		this.roles = roles;
+		this.attributes = attributes;
+		this.groups = groups;
+		this.adminPrincipal = adminPrincipal;
+	}
 
-  public AuthenticatedPrincipal(String username, Collection<String> roles, Map<String, String> attributes, Collection<String> groups, boolean adminPrincipal) {
-    this.name = username;
-    this.roles = roles;
-    this.attributes = attributes;
-    this.groups = groups;
-    this.adminPrincipal = adminPrincipal;
-  }
+	/**
+	 * @return the roles
+	 */
+	public Collection<String> getRoles() {
+		return roles;
+	}
 
-  /**
-   * @return the roles
-   */
-  public Collection<String> getRoles() {
-    return roles;
-  }
+	/**
+	 * @return the attributes
+	 */
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
 
-  /**
-   * @return the attributes
-   */
-  public Map<String, String> getAttributes() {
-    return attributes;
-  }
+	/**
+	 * Get the given attribute.
+	 * 
+	 * @param key
+	 *            the attribute key to get.
+	 * @return String value if attribute found. Null if attribute not found or
+	 *         no attributes at all.
+	 */
+	public String getAttribute(String key) {
+		if (attributes == null) {
+			return null;
+		}
+		return attributes.get(key);
+	}
 
-  /**
-   * Get the given attribute.
-   * @param key the attribute key to get.
-   * @return String value if attribute found. Null if attribute not found or no attributes at all.
-   */
-  public String getAttribute(String key) {
-    if (attributes == null) {
-      return null;
-    }
-    return attributes.get(key);
-  }
+	public void addAttribute(String key, String value) {
+		if (attributes == null) {
+			attributes = new HashMap<String, String>();
+		}
+		attributes.put(key, value);
+	}
 
-  public void addAttribute(String key, String value) {
-    if (attributes == null) {
-      attributes = new HashMap<String, String>();
-    }
-    attributes.put(key, value);
-  }
+	public void addGroup(String name) {
+		if (groups == null) {
+			groups = new ArrayList<String>();
+		}
+		groups.add(name);
+	}
 
-  public void addGroup(String name) {
-    if (groups == null) {
-      groups = new ArrayList<String>();
-    }
-    groups.add(name);
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.security.Principal#getName()
+	 */
+	@Override
+	public String getName() {
+		return name;
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.security.Principal#getName()
-   */
-  @Override
-  public String getName() {
-    return name;
-  }
+	@JsonIgnore
+	public String getDisplayName() {
+		return name;
+	}
 
-  @JsonIgnore
-  public String getDisplayName() {
-    return name;
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return getClass().getName() + " [name=" + name + ", roles=" + roles
+				+ ", attributes=" + attributes + "]";
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return getClass().getName() + " [name=" + name + ", roles=" + roles + ", attributes=" + attributes + "]";
-  }
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
 
-  /**
-   * @param name the name to set
-   */
-  public void setName(String name) {
-    this.name = name;
-  }
+	/**
+	 * @param roles
+	 *            the roles to set
+	 */
+	public void setRoles(Collection<String> roles) {
+		this.roles = roles;
+	}
 
-  /**
-   * @param roles the roles to set
-   */
-  public void setRoles(Collection<String> roles) {
-    this.roles = roles;
-  }
+	/**
+	 * @param attributes
+	 *            the attributes to set
+	 */
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
+	}
 
-  /**
-   * @param attributes the attributes to set
-   */
-  public void setAttributes(Map<String, String> attributes) {
-    this.attributes = attributes;
-  }
+	public Collection<String> getGroups() {
+		return groups;
+	}
 
-  public Collection<String> getGroups() {
-    return groups;
-  }
+	public void setGroups(Collection<String> groups) {
+		this.groups = groups;
+	}
 
-  public void setGroups(Collection<String> groups) {
-    this.groups = groups;
-  }
+	@JsonIgnore
+	public boolean isGroupAware() {
+		return !CollectionUtils.isEmpty(groups);
+	}
 
-  @JsonIgnore
-  public boolean isGroupAware() {
-    return !CollectionUtils.isEmpty(groups);
-  }
+	public boolean isAdminPrincipal() {
+		return adminPrincipal;
+	}
 
-  public boolean isAdminPrincipal() {
-    return adminPrincipal;
-  }
+	public void setAdminPrincipal(boolean adminPrincipal) {
+		this.adminPrincipal = adminPrincipal;
+	}
 
-  public void setAdminPrincipal(boolean adminPrincipal) {
-    this.adminPrincipal = adminPrincipal;
-  }
+	@JsonIgnore
+	public String serialize() {
+		try {
+			return mapper.writeValueAsString(this);
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to serialize Principal:"
+					+ toString(), e);
+		}
+	}
 
-
-  @JsonIgnore
-  public String serialize() {
-    try {
-      return mapper.writeValueAsString(this);
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to serialize Principal:" + toString(), e);
-    }
-  }
-
-  @JsonIgnore
-  public static AuthenticatedPrincipal deserialize(String json) {
-    try {
-      return mapper.readValue(json, AuthenticatedPrincipal.class);
-    } catch (IOException e) {
-      throw new RuntimeException("Unable to serialize Principal:" + json, e);
-    }
-  }
+	@JsonIgnore
+	public static AuthenticatedPrincipal deserialize(String json) {
+		try {
+			return mapper.readValue(json, AuthenticatedPrincipal.class);
+		} catch (IOException e) {
+			throw new RuntimeException("Unable to serialize Principal:" + json,
+					e);
+		}
+	}
 
 }

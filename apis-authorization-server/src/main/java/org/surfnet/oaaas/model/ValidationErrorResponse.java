@@ -28,25 +28,25 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * POJO representing an error response used when dealing with resources.
- *
+ * 
  */
 @XmlRootElement
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class ValidationErrorResponse {
 
-  @JsonProperty
-  private List<String> violations = new ArrayList<String>();
+	@JsonProperty
+	private List<String> violations = new ArrayList<String>();
 
-  public ValidationErrorResponse() {
-  }
+	public ValidationErrorResponse() {
+	}
 
-  public ValidationErrorResponse(Set<ConstraintViolation<?>> violations) {
-    for (ConstraintViolation<?> v : violations) {
-      this.violations.add(v.getMessage());
-    }
-  }
+	public ValidationErrorResponse(Set<ConstraintViolation<?>> violations) {
+		for (ConstraintViolation<?> v : violations) {
+			this.violations.add(v.getMessage());
+		}
+	}
 
-  public List<String> getViolations() {
-    return violations;
-  }
+	public List<String> getViolations() {
+		return violations;
+	}
 }

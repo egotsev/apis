@@ -43,190 +43,211 @@ import java.util.Collections;
 @Produces(MediaType.APPLICATION_JSON)
 public class ClientResource extends AbstractResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ClientResource.class);
-  private static final String FILTERED_CLIENT_ID_CHARS = "[^a-z0-9_\\x2D]";
+	private static final Logger LOG = LoggerFactory
+			.getLogger(ClientResource.class);
+	private static final String FILTERED_CLIENT_ID_CHARS = "[^a-z0-9_\\x2D]";
 
-  @Inject
-  private ClientRepository clientRepository;
+	@Inject
+	private ClientRepository clientRepository;
 
-  @Inject
-  private ResourceServerRepository resourceServerRepository;
+	@Inject
+	private ResourceServerRepository resourceServerRepository;
 
-  /**
-   * Get a list of all clients linked to the given resourceServer.
-   */
-  @GET
-  public Response getAll(@Context HttpServletRequest request,
-                         @PathParam("resourceServerId") Long resourceServerId) {
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_READ));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
-    ResourceServer resourceServer = getResourceServer(request, resourceServerId);
-    Iterable<Client> clients = clientRepository.findByResourceServer(resourceServer);
-    return response(addAll(clients.iterator()));
-  }
+	/**
+	 * Get a list of all clients linked to the given resourceServer.
+	 */
+	@GET
+	public Response getAll(@Context HttpServletRequest request,
+			@PathParam("resourceServerId") Long resourceServerId) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_READ));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
+		ResourceServer resourceServer = getResourceServer(request,
+				resourceServerId);
+		Iterable<Client> clients = clientRepository
+				.findByResourceServer(resourceServer);
+		return response(addAll(clients.iterator()));
+	}
 
+	/**
+	 * Get a specific Client.
+	 */
+	@GET
+	@Path("/{clientId}")
+	public Response getById(@Context HttpServletRequest request,
+			@PathParam("resourceServerId") Long resourceServerId,
+			@PathParam("clientId") Long id) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_READ));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
+		Client client = getClientByResourceServer(request, id, resourceServerId);
+		return response(client);
+	}
 
-  /**
-   * Get a specific Client.
-   */
-  @GET
-  @Path("/{clientId}")
-  public Response getById(@Context HttpServletRequest request,
-                          @PathParam("resourceServerId") Long resourceServerId,
-                          @PathParam("clientId") Long id) {
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_READ));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
-    Client client = getClientByResourceServer(request, id, resourceServerId);
-    return response(client);
-  }
+	/**
+	 * Save a new client.
+	 */
+	@PUT
+	public Response put(@Context HttpServletRequest request,
+			@PathParam("resourceServerId") Long resourceServerId, Client client) {
 
-  /**
-   * Save a new client.
-   */
-  @PUT
-  public Response put(@Context HttpServletRequest request,
-                      @PathParam("resourceServerId") Long resourceServerId, Client client) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_WRITE));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
+		ResourceServer resourceServer = getResourceServer(request,
+				resourceServerId);
 
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_WRITE));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
-    ResourceServer resourceServer = getResourceServer(request, resourceServerId);
+		client.setResourceServer(resourceServer);
+		client.setClientId(generateClientId(client));
+		client.setSecret(client.isAllowedImplicitGrant() ? null
+				: generateSecret());
 
-    client.setResourceServer(resourceServer);
-    client.setClientId(generateClientId(client));
-    client.setSecret(client.isAllowedImplicitGrant() ? null : generateSecret());
+		Client clientSaved;
 
-    Client clientSaved;
+		try {
+			clientSaved = clientRepository.save(client);
+		} catch (RuntimeException e) {
+			return buildErrorResponse(e);
+		}
 
-    try {
-      clientSaved = clientRepository.save(client);
-    } catch (RuntimeException e) {
-      return buildErrorResponse(e);
-    }
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Saved client: {}", clientSaved);
+		}
+		final URI uri = UriBuilder.fromPath("{clientId}.json").build(
+				clientSaved.getId());
+		return Response.created(uri).entity(clientSaved).build();
+	}
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Saved client: {}", clientSaved);
-    }
-    final URI uri = UriBuilder.fromPath("{clientId}.json").build(clientSaved.getId());
-    return Response.created(uri).entity(clientSaved).build();
-  }
+	protected String generateSecret() {
+		return super.generateRandom();
+	}
 
-  protected String generateSecret() {
-    return super.generateRandom();
-  }
+	/**
+	 * Delete a given client.
+	 */
+	@DELETE
+	@Path("/{clientId}")
+	public Response delete(@Context HttpServletRequest request,
+			@PathParam("clientId") Long id,
+			@PathParam("resourceServerId") Long resourceServerId) {
 
-  /**
-   * Delete a given client.
-   */
-  @DELETE
-  @Path("/{clientId}")
-  public Response delete(@Context HttpServletRequest request,
-                         @PathParam("clientId") Long id,
-                         @PathParam("resourceServerId") Long resourceServerId) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_WRITE));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
 
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_WRITE));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
+		Client client = getClientByResourceServer(request, id, resourceServerId);
 
-    Client client = getClientByResourceServer(request, id, resourceServerId);
+		if (client == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Deleting client: {}", client);
+		}
+		clientRepository.delete(id);
+		return Response.noContent().build();
+	}
 
-    if (client == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Deleting client: {}", client);
-    }
-    clientRepository.delete(id);
-    return Response.noContent().build();
-  }
+	/**
+	 * Update an existing client.
+	 */
+	@POST
+	@Path("/{clientId}")
+	public Response post(@Valid Client newOne, @PathParam("clientId") Long id,
+			@Context HttpServletRequest request,
+			@PathParam("resourceServerId") Long resourceServerId) {
 
-  /**
-   * Update an existing client.
-   */
-  @POST
-  @Path("/{clientId}")
-  public Response post(@Valid Client newOne, @PathParam("clientId") Long id,
-                       @Context HttpServletRequest request,
-                       @PathParam("resourceServerId") Long resourceServerId
-  ) {
+		Response validateScopeResponse = validateScope(request,
+				Collections.singletonList(AbstractResource.SCOPE_WRITE));
+		if (validateScopeResponse != null) {
+			return validateScopeResponse;
+		}
 
-    Response validateScopeResponse = validateScope(request, Collections.singletonList(AbstractResource.SCOPE_WRITE));
-    if (validateScopeResponse != null) {
-      return validateScopeResponse;
-    }
+		ResourceServer resourceServer = getResourceServer(request,
+				resourceServerId);
 
-    ResourceServer resourceServer = getResourceServer(request, resourceServerId);
+		final Client clientFromStore = clientRepository
+				.findByIdAndResourceServer(id, resourceServer);
+		if (clientFromStore == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 
-    final Client clientFromStore = clientRepository.findByIdAndResourceServer(id, resourceServer);
-    if (clientFromStore == null) {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
+		// Copy over read-only fields
+		newOne.setResourceServer(resourceServer);
+		newOne.setClientId(clientFromStore.getClientId());
+		newOne.setSecret(newOne.isAllowedImplicitGrant() ? null
+				: clientFromStore.getSecret());
 
-    // Copy over read-only fields
-    newOne.setResourceServer(resourceServer);
-    newOne.setClientId(clientFromStore.getClientId());
-    newOne.setSecret(newOne.isAllowedImplicitGrant() ? null : clientFromStore.getSecret());
+		Client savedInstance;
+		try {
+			savedInstance = clientRepository.save(newOne);
+		} catch (RuntimeException e) {
+			return buildErrorResponse(e);
+		}
 
-    Client savedInstance;
-    try {
-      savedInstance = clientRepository.save(newOne);
-    } catch (RuntimeException e) {
-      return buildErrorResponse(e);
-    }
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Saving client: {}", savedInstance);
+		}
+		return Response.ok(savedInstance).build();
+	}
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Saving client: {}", savedInstance);
-    }
-    return Response.ok(savedInstance).build();
-  }
+	/**
+	 * Method that generates a unique client id, taking into account existing
+	 * clientIds in the backend.
+	 * 
+	 * @param client
+	 *            the client for whom to generate an id.
+	 * @return the generated id. Callers are responsible themselves for actually
+	 *         calling {@link Client#setClientId(String)}
+	 */
+	protected String generateClientId(Client client) {
+		String clientId = sanitizeClientName(client.getName());
+		if (clientRepository.findByClientId(clientId) != null) {
 
-  /**
-   * Method that generates a unique client id, taking into account existing clientIds in the backend.
-   *
-   * @param client the client for whom to generate an id.
-   * @return the generated id. Callers are responsible themselves for actually calling {@link Client#setClientId(String)}
-   */
-  protected String generateClientId(Client client) {
-    String clientId = sanitizeClientName(client.getName());
-    if (clientRepository.findByClientId(clientId) != null) {
+			String baseClientId = clientId;
 
-      String baseClientId = clientId;
+			/*
+			 * if one with such name exists already, the next one would actually
+			 * be number 2. Therefore, start counting with 2.
+			 */
+			int i = 2;
+			do {
+				clientId = baseClientId + (i++);
+			} while (clientRepository.findByClientId(clientId) != null);
+		}
+		return clientId;
+	}
 
-      /* if one with such name exists already, the next one would actually be number 2. Therefore,
-       * start counting with 2.
-       */
-      int i = 2;
-      do {
-        clientId = baseClientId + (i++);
-      } while (clientRepository.findByClientId(clientId) != null);
-    }
-    return clientId;
-  }
+	protected String sanitizeClientName(String name) {
+		return name.toLowerCase().replaceAll(" ", "-")
+				.replaceAll(FILTERED_CLIENT_ID_CHARS, "");
+	}
 
-  protected String sanitizeClientName(String name) {
-    return name.toLowerCase().replaceAll(" ", "-").replaceAll(FILTERED_CLIENT_ID_CHARS, "");
-  }
+	private Client getClientByResourceServer(HttpServletRequest request,
+			Long clientId, Long resourceServerId) {
+		ResourceServer resourceServer = getResourceServer(request,
+				resourceServerId);
+		return clientRepository.findByIdAndResourceServer(clientId,
+				resourceServer);
+	}
 
-  private Client getClientByResourceServer(HttpServletRequest request, Long clientId, Long resourceServerId) {
-    ResourceServer resourceServer = getResourceServer(request, resourceServerId);
-    return clientRepository.findByIdAndResourceServer(clientId, resourceServer);
-  }
-
-  private ResourceServer getResourceServer(HttpServletRequest request, Long id) {
-    ResourceServer resourceServer;
-    if (isAdminPrincipal(request)) {
-      resourceServer = resourceServerRepository.findOne(id);
-    } else {
-      String owner = getUserId(request);
-      resourceServer = resourceServerRepository.findByIdAndOwner(id, owner);
-    }
-    return resourceServer;
-  }
+	private ResourceServer getResourceServer(HttpServletRequest request, Long id) {
+		ResourceServer resourceServer;
+		if (isAdminPrincipal(request)) {
+			resourceServer = resourceServerRepository.findOne(id);
+		} else {
+			String owner = getUserId(request);
+			resourceServer = resourceServerRepository.findByIdAndOwner(id,
+					owner);
+		}
+		return resourceServer;
+	}
 
 }

@@ -37,60 +37,84 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test for Client Credential. Prerequisite is the client 'it-test-client-credential-grant', 'some-secret-client-credential-grant' that may issue client credential grants
+ * Test for Client Credential. Prerequisite is the client
+ * 'it-test-client-credential-grant', 'some-secret-client-credential-grant' that
+ * may issue client credential grants
  */
-public class ClientCredentialGrantTestIT extends AbstractAuthorizationServerTest {
+public class ClientCredentialGrantTestIT extends
+		AbstractAuthorizationServerTest {
 
-  /*
-   * The ObjectMapper from the super class is expecting class meta data as it converts VerifyTokenResponse instances and this is not conform spec for AccessTokenResponses
-   */
-  private ObjectMapper mapper = new ObjectMapper();
+	/*
+	 * The ObjectMapper from the super class is expecting class meta data as it
+	 * converts VerifyTokenResponse instances and this is not conform spec for
+	 * AccessTokenResponses
+	 */
+	private ObjectMapper mapper = new ObjectMapper();
 
-  @Test
-  public void clientCredentialAccessTokenHappy() throws IOException {
+	@Test
+	public void clientCredentialAccessTokenHappy() throws IOException {
 
-    InputStream responseContent = performClientCredentialTokenPost("it-test-client-credential-grant", "some-secret-client-credential-grant");
+		InputStream responseContent = performClientCredentialTokenPost(
+				"it-test-client-credential-grant",
+				"some-secret-client-credential-grant");
 
-    String content = IOUtils.toString(responseContent);
+		String content = IOUtils.toString(responseContent);
 
-    AccessTokenResponse accessTokenResponse =  mapper.readValue(content,AccessTokenResponse.class);
-    assertNotNull(accessTokenResponse.getAccessToken());
-    assertEquals(0, accessTokenResponse.getExpiresIn());
-    assertEquals(OAuth2Validator.BEARER, accessTokenResponse.getTokenType());
+		AccessTokenResponse accessTokenResponse = mapper.readValue(content,
+				AccessTokenResponse.class);
+		assertNotNull(accessTokenResponse.getAccessToken());
+		assertEquals(0, accessTokenResponse.getExpiresIn());
+		assertEquals(OAuth2Validator.BEARER, accessTokenResponse.getTokenType());
 
-    //now check the actual result for an resource server (the one 'owning' the client we used) checking this access token
+		// now check the actual result for an resource server (the one 'owning'
+		// the client we used) checking this access token
 
-    final ClientResponse response = client.resource(baseUrlWith("/v1/tokeninfo")).queryParam("access_token", accessTokenResponse.getAccessToken())
-            .header("Authorization", authorizationBasic("it-test-resource-server", "somesecret")).get(ClientResponse.class);
-    assertEquals(200, response.getStatus());
-    String json = response.getEntity(String.class);
-    final VerifyTokenResponse verifyTokenResponse = mapper.readValue(json, VerifyTokenResponse.class);
+		final ClientResponse response = client
+				.resource(baseUrlWith("/v1/tokeninfo"))
+				.queryParam("access_token",
+						accessTokenResponse.getAccessToken())
+				.header("Authorization",
+						authorizationBasic("it-test-resource-server",
+								"somesecret")).get(ClientResponse.class);
+		assertEquals(200, response.getStatus());
+		String json = response.getEntity(String.class);
+		final VerifyTokenResponse verifyTokenResponse = mapper.readValue(json,
+				VerifyTokenResponse.class);
 
-    //The client name equals the principal name as we did not authenticate with the AbstractAuthenticator
-    assertEquals("it-test-client-credential-grant", verifyTokenResponse.getPrincipal().getName());
-  }
+		// The client name equals the principal name as we did not authenticate
+		// with the AbstractAuthenticator
+		assertEquals("it-test-client-credential-grant", verifyTokenResponse
+				.getPrincipal().getName());
+	}
 
-  @Test
-  public void clientCredentialAccessTokenWithClientNotAllowed() throws IOException {
-    InputStream responseContent = performClientCredentialTokenPost("it-test-client-grant", "somesecret-grant");
+	@Test
+	public void clientCredentialAccessTokenWithClientNotAllowed()
+			throws IOException {
+		InputStream responseContent = performClientCredentialTokenPost(
+				"it-test-client-grant", "somesecret-grant");
 
-    Map response =  mapper.readValue(responseContent,HashMap.class);
-    assertEquals("unauthorized_client", response.get("error"));
-    assertEquals("The client has no permisssion for client credentials", response.get("error_description"));
-  }
+		Map response = mapper.readValue(responseContent, HashMap.class);
+		assertEquals("unauthorized_client", response.get("error"));
+		assertEquals("The client has no permisssion for client credentials",
+				response.get("error_description"));
+	}
 
-  private InputStream performClientCredentialTokenPost(String username, String password) throws IOException {
-    String tokenUrl = String.format("%s/oauth2/token", baseUrl());
-    final HttpPost tokenRequest = new HttpPost(tokenUrl);
-    String postBody = String.format("grant_type=%s", OAuth2Validator.GRANT_TYPE_CLIENT_CREDENTIALS );
+	private InputStream performClientCredentialTokenPost(String username,
+			String password) throws IOException {
+		String tokenUrl = String.format("%s/oauth2/token", baseUrl());
+		final HttpPost tokenRequest = new HttpPost(tokenUrl);
+		String postBody = String.format("grant_type=%s",
+				OAuth2Validator.GRANT_TYPE_CLIENT_CREDENTIALS);
 
-    tokenRequest.setEntity(new ByteArrayEntity(postBody.getBytes()));
-    tokenRequest.addHeader("Authorization", authorizationBasic(username, password));
-    tokenRequest.addHeader("Content-Type", "application/x-www-form-urlencoded");
+		tokenRequest.setEntity(new ByteArrayEntity(postBody.getBytes()));
+		tokenRequest.addHeader("Authorization",
+				authorizationBasic(username, password));
+		tokenRequest.addHeader("Content-Type",
+				"application/x-www-form-urlencoded");
 
-    HttpResponse tokenHttpResponse = new DefaultHttpClient().execute(tokenRequest);
-    return tokenHttpResponse.getEntity().getContent();
-  }
-
+		HttpResponse tokenHttpResponse = new DefaultHttpClient()
+				.execute(tokenRequest);
+		return tokenHttpResponse.getEntity().getContent();
+	}
 
 }

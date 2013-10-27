@@ -30,22 +30,27 @@ import org.surfnet.oaaas.auth.UserConsentFilter;
 import org.surfnet.oaaas.model.Client;
 
 /**
- * A noop implementation of {@link AbstractUserConsentHandler} that
- * contains no consent handling but only fulfills the contract of the
+ * A noop implementation of {@link AbstractUserConsentHandler} that contains no
+ * consent handling but only fulfills the contract of the
  * {@link UserConsentFilter}. Useful for testing and demonstration purposes
  * only, of course not safe for production.
  * 
  */
 public class NoopUserConsentHandler extends AbstractUserConsentHandler {
 
-  @Override
-  public void handleUserConsent(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-      String authStateValue, String returnUri, Client client) throws IOException, ServletException {
-    super.setAuthStateValue(request, authStateValue);
-    super.setGrantedScopes(request, client.getScopes().isEmpty() ? new String[]{ } : client.getScopes().toArray(new
-        String[client.getScopes().size()]));
-    chain.doFilter(request, response);
+	@Override
+	public void handleUserConsent(HttpServletRequest request,
+			HttpServletResponse response, FilterChain chain,
+			String authStateValue, String returnUri, Client client)
+			throws IOException, ServletException {
+		super.setAuthStateValue(request, authStateValue);
+		super.setGrantedScopes(
+				request,
+				client.getScopes().isEmpty() ? new String[] {} : client
+						.getScopes().toArray(
+								new String[client.getScopes().size()]));
+		chain.doFilter(request, response);
 
-  }
+	}
 
 }

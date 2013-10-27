@@ -31,23 +31,24 @@ import com.yammer.dropwizard.config.Configuration;
  */
 public class UniversityFooConfiguration extends Configuration {
 
-  @Valid
-  @NotNull
-  @JsonProperty
-  private AuthConfiguration auth = new AuthConfiguration();
+	@Valid
+	@NotNull
+	@JsonProperty
+	private AuthConfiguration auth = new AuthConfiguration();
 
-  /**
-   * @return the auth
-   */
-  public AuthConfiguration getAuth() {
-    return auth;
-  }
+	/**
+	 * @return the auth
+	 */
+	public AuthConfiguration getAuth() {
+		return auth;
+	}
 
-  /**
-   * @param auth the auth to set
-   */
-  public void setAuth(AuthConfiguration auth) {
-    this.auth = auth;
-  }
+	/**
+	 * @param auth
+	 *            the auth to set
+	 */
+	public void setAuth(AuthConfiguration auth) {
+		this.auth = auth;
+	}
 
 }

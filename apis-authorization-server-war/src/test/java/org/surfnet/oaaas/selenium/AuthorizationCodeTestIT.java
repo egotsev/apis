@@ -31,43 +31,48 @@ import static org.junit.matchers.JUnitMatchers.containsString;
  * Integration test (using Selenium) for the Authorization Code flow.
  */
 public class AuthorizationCodeTestIT extends SeleniumSupport {
-  
-  private String clientId = "it-test-client";
-  private String secret = "somesecret";
 
+	private String clientId = "it-test-client";
+	private String secret = "somesecret";
 
-  @Test
-  public void authCode() throws Exception {
-    String accessTokenRedirectUri = startAuthorizationCallbackServer(clientId, secret);
+	@Test
+	public void authCode() throws Exception {
+		String accessTokenRedirectUri = startAuthorizationCallbackServer(
+				clientId, secret);
 
-    WebDriver webdriver = getWebDriver();
-    String responseType = "code";
-    String scopes = "read,write";
-    String url = String.format(
-        "%s/oauth2/authorize?response_type=%s&scope=%s&client_id=%s&redirect_uri=%s",
-        baseUrl(), responseType, scopes, clientId, accessTokenRedirectUri);
-    webdriver.get(url);
+		WebDriver webdriver = getWebDriver();
+		String responseType = "code";
+		String scopes = "read,write";
+		String url = String
+				.format("%s/oauth2/authorize?response_type=%s&scope=%s&client_id=%s&redirect_uri=%s",
+						baseUrl(), responseType, scopes, clientId,
+						accessTokenRedirectUri);
+		webdriver.get(url);
 
-    login(webdriver,true);
-    
-    // get token response
-    String tokenResponse = getAuthorizationCodeRequestHandler().getTokenResponseBlocking();
-    
-    AccessTokenResponse accessTokenResponse = getMapper().readValue(tokenResponse, AccessTokenResponse.class);
+		login(webdriver, true);
 
-    assertTrue(StringUtils.isNotBlank(accessTokenResponse.getAccessToken()));
-    assertTrue(StringUtils.isBlank(accessTokenResponse.getRefreshToken()));
-    assertTrue(StringUtils.isNotBlank(accessTokenResponse.getScope()));
-    assertTrue(StringUtils.isNotBlank(accessTokenResponse.getTokenType()));
-    assertEquals(accessTokenResponse.getExpiresIn(), 0L);
-  }
+		// get token response
+		String tokenResponse = getAuthorizationCodeRequestHandler()
+				.getTokenResponseBlocking();
 
-  @Test
-  public void invalidParams() {
-    final WebDriver webdriver = getWebDriver();
-    webdriver.get(baseUrlWith("/oauth2/authorize"));
+		AccessTokenResponse accessTokenResponse = getMapper().readValue(
+				tokenResponse, AccessTokenResponse.class);
 
-    String pageSource = webdriver.getPageSource();
-    assertThat(pageSource, containsString("The supported response_type values are 'token' and 'code'"));
-  }
+		assertTrue(StringUtils.isNotBlank(accessTokenResponse.getAccessToken()));
+		assertTrue(StringUtils.isBlank(accessTokenResponse.getRefreshToken()));
+		assertTrue(StringUtils.isNotBlank(accessTokenResponse.getScope()));
+		assertTrue(StringUtils.isNotBlank(accessTokenResponse.getTokenType()));
+		assertEquals(accessTokenResponse.getExpiresIn(), 0L);
+	}
+
+	@Test
+	public void invalidParams() {
+		final WebDriver webdriver = getWebDriver();
+		webdriver.get(baseUrlWith("/oauth2/authorize"));
+
+		String pageSource = webdriver.getPageSource();
+		assertThat(
+				pageSource,
+				containsString("The supported response_type values are 'token' and 'code'"));
+	}
 }

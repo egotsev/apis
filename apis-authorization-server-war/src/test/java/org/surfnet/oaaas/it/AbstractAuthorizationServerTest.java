@@ -22,33 +22,35 @@ import com.sun.jersey.api.client.Client;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.surfnet.oaaas.auth.ObjectMapperProvider;
 
-
 public abstract class AbstractAuthorizationServerTest {
 
-  protected static final String ACCESS_TOKEN = "dad30fb8-ad90-4f24-af99-798bb71d27c8";
+	protected static final String ACCESS_TOKEN = "dad30fb8-ad90-4f24-af99-798bb71d27c8";
 
-  protected int defaultServletPort = 8080;
-  protected Client client = new Client();
-  protected static ObjectMapper objectMapper = new ObjectMapperProvider().getContext(ObjectMapper.class);
-  static {
-     objectMapper.disableDefaultTyping();
-  }
+	protected int defaultServletPort = 8080;
+	protected Client client = new Client();
+	protected static ObjectMapper objectMapper = new ObjectMapperProvider()
+			.getContext(ObjectMapper.class);
+	static {
+		objectMapper.disableDefaultTyping();
+	}
 
-  protected String baseUrl() {
-    return String.format("http://localhost:%s",
-        System.getProperty("servlet.port", String.valueOf(defaultServletPort)));
-  }
+	protected String baseUrl() {
+		return String.format(
+				"http://localhost:%s",
+				System.getProperty("servlet.port",
+						String.valueOf(defaultServletPort)));
+	}
 
-  protected String baseUrlWith(String suffix) {
-    return baseUrl().concat(suffix);
-  }
+	protected String baseUrlWith(String suffix) {
+		return baseUrl().concat(suffix);
+	}
 
-  public static String authorizationBasic(String username, String password) {
-    String concatted = username + ":" + password;
-    return "Basic " + new String(Base64.encodeBase64(concatted.getBytes()));
-  }
-  
-  public static String authorizationBearer(String token) {
-    return "bearer " + token;
-  }
+	public static String authorizationBasic(String username, String password) {
+		String concatted = username + ":" + password;
+		return "Basic " + new String(Base64.encodeBase64(concatted.getBytes()));
+	}
+
+	public static String authorizationBearer(String token) {
+		return "bearer " + token;
+	}
 }

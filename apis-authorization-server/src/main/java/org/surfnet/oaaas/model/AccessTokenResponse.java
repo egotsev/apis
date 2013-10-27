@@ -33,111 +33,115 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class AccessTokenResponse {
 
-  @JsonProperty("access_token")
-  private String accessToken;
-  @JsonProperty("token_type")
-  private String tokenType;
-  @JsonProperty("expires_in")
-  private long expiresIn;
-  @JsonProperty("refresh_token")
-  private String refreshToken;
-  private String scope;
+	@JsonProperty("access_token")
+	private String accessToken;
+	@JsonProperty("token_type")
+	private String tokenType;
+	@JsonProperty("expires_in")
+	private long expiresIn;
+	@JsonProperty("refresh_token")
+	private String refreshToken;
+	private String scope;
 
-  public AccessTokenResponse() {
-    super();
-  }
+	public AccessTokenResponse() {
+		super();
+	}
 
-  public AccessTokenResponse(String accessToken, String tokenType, long expiresIn, String refreshToken, String scope) {
-    super();
-    this.accessToken = accessToken;
-    this.tokenType = tokenType;
-    this.expiresIn = expiresIn;
-    this.refreshToken = refreshToken;
-    this.scope = scope;
-  }
+	public AccessTokenResponse(String accessToken, String tokenType,
+			long expiresIn, String refreshToken, String scope) {
+		super();
+		this.accessToken = accessToken;
+		this.tokenType = tokenType;
+		this.expiresIn = expiresIn;
+		this.refreshToken = refreshToken;
+		this.scope = scope;
+	}
 
-  /**
-   * @return the accessToken
-   */
-  public String getAccessToken() {
-    return accessToken;
-  }
+	/**
+	 * @return the accessToken
+	 */
+	public String getAccessToken() {
+		return accessToken;
+	}
 
-  /**
-   * @param accessToken
-   *          the accessToken to set
-   */
-  public void setAccessToken(String accessToken) {
-    this.accessToken = accessToken;
-  }
+	/**
+	 * @param accessToken
+	 *            the accessToken to set
+	 */
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
 
-  /**
-   * @return the tokenType
-   */
-  public String getTokenType() {
-    return tokenType;
-  }
+	/**
+	 * @return the tokenType
+	 */
+	public String getTokenType() {
+		return tokenType;
+	}
 
-  /**
-   * @param tokenType
-   *          the tokenType to set
-   */
-  public void setTokenType(String tokenType) {
-    this.tokenType = tokenType;
-  }
+	/**
+	 * @param tokenType
+	 *            the tokenType to set
+	 */
+	public void setTokenType(String tokenType) {
+		this.tokenType = tokenType;
+	}
 
-  /**
-   * @return the expiresIn
-   */
-  public long getExpiresIn() {
-    return expiresIn;
-  }
+	/**
+	 * @return the expiresIn
+	 */
+	public long getExpiresIn() {
+		return expiresIn;
+	}
 
-  /**
-   * @param expiresIn
-   *          the expiresIn to set
-   */
-  public void setExpiresIn(long expiresIn) {
-    this.expiresIn = expiresIn;
-  }
+	/**
+	 * @param expiresIn
+	 *            the expiresIn to set
+	 */
+	public void setExpiresIn(long expiresIn) {
+		this.expiresIn = expiresIn;
+	}
 
-  /**
-   * @return the refreshToken
-   */
-  public String getRefreshToken() {
-    return refreshToken;
-  }
+	/**
+	 * @return the refreshToken
+	 */
+	public String getRefreshToken() {
+		return refreshToken;
+	}
 
-  /**
-   * @param refreshToken
-   *          the refreshToken to set
-   */
-  public void setRefreshToken(String refreshToken) {
-    this.refreshToken = refreshToken;
-  }
+	/**
+	 * @param refreshToken
+	 *            the refreshToken to set
+	 */
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 
-  /**
-   * @return the scope
-   */
-  public String getScope() {
-    return scope;
-  }
+	/**
+	 * @return the scope
+	 */
+	public String getScope() {
+		return scope;
+	}
 
-  /**
-   * @param scope
-   *          the scope to set
-   */
-  public void setScope(String scope) {
-    this.scope = scope;
-  }
+	/**
+	 * @param scope
+	 *            the scope to set
+	 */
+	public void setScope(String scope) {
+		this.scope = scope;
+	}
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return "AccessTokenResponse [accessToken=" + accessToken + ", tokenType=" + tokenType + ", expiresIn=" + expiresIn
-        + ", refreshToken=" + refreshToken + ", scope=" + scope + "]";
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "AccessTokenResponse [accessToken=" + accessToken
+				+ ", tokenType=" + tokenType + ", expiresIn=" + expiresIn
+				+ ", refreshToken=" + refreshToken + ", scope=" + scope + "]";
+	}
 
 }

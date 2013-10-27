@@ -45,159 +45,149 @@ import static org.junit.matchers.JUnitMatchers.containsString;
 
 public class ClientResourceTestIT extends AbstractAuthorizationServerTest {
 
-  private WebResource webResource;
-  private ResourceServer resourceServer;
+	private WebResource webResource;
+	private ResourceServer resourceServer;
 
-  private List<String> resourceServerScopes = Arrays.asList("read", "write");
+	private List<String> resourceServerScopes = Arrays.asList("read", "write");
 
-  @Before
-  public void prepareRestClientAndCreateResourceServer() {
-    ClientConfig config = new DefaultClientConfig();
-    config.getClasses().add(JacksonJsonProvider.class);
-    webResource = com.sun.jersey.api.client.Client.create(config)
-        .resource(baseUrl())
-        .path("admin")
-        .path("resourceServer");
+	@Before
+	public void prepareRestClientAndCreateResourceServer() {
+		ClientConfig config = new DefaultClientConfig();
+		config.getClasses().add(JacksonJsonProvider.class);
+		webResource = com.sun.jersey.api.client.Client.create(config)
+				.resource(baseUrl()).path("admin").path("resourceServer");
 
-    ResourceServer newResourceServer = new ResourceServer();
-    newResourceServer.setContactName("myContactName");
-    newResourceServer.setDescription("The description");
-    newResourceServer.setName("the name" + System.currentTimeMillis());
-    newResourceServer.setKey("the-key-" + System.currentTimeMillis());
-    newResourceServer.setThumbNailUrl("http://example.com/thumbnail");
-    newResourceServer.setScopes(resourceServerScopes);
+		ResourceServer newResourceServer = new ResourceServer();
+		newResourceServer.setContactName("myContactName");
+		newResourceServer.setDescription("The description");
+		newResourceServer.setName("the name" + System.currentTimeMillis());
+		newResourceServer.setKey("the-key-" + System.currentTimeMillis());
+		newResourceServer.setThumbNailUrl("http://example.com/thumbnail");
+		newResourceServer.setScopes(resourceServerScopes);
 
-    resourceServer = webResource
-        .type(MediaType.APPLICATION_JSON)
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .put(ResourceServer.class, newResourceServer);
+		resourceServer = webResource.type(MediaType.APPLICATION_JSON)
+				.header("Authorization", authorizationBearer(ACCESS_TOKEN))
+				.put(ResourceServer.class, newResourceServer);
 
-    // setup a new webResource as entry point for Client-REST-requests.
-    webResource = com.sun.jersey.api.client.Client.create(config)
-        .resource(baseUrl())
-        .path("admin")
-        .path("resourceServer")
-        .path(String.valueOf(resourceServer.getId()))
-        .path("client");
-  }
+		// setup a new webResource as entry point for Client-REST-requests.
+		webResource = com.sun.jersey.api.client.Client.create(config)
+				.resource(baseUrl()).path("admin").path("resourceServer")
+				.path(String.valueOf(resourceServer.getId())).path("client");
+	}
 
-  @Test
-  public void getNonExisting() {
-    ClientResponse response = webResource
-        .path("-1")
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .get(ClientResponse.class);
-    assertEquals(404, response.getStatus());
-  }
+	@Test
+	public void getNonExisting() {
+		ClientResponse response = webResource.path("-1")
+				.header("Authorization", authorizationBearer(ACCESS_TOKEN))
+				.get(ClientResponse.class);
+		assertEquals(404, response.getStatus());
+	}
 
-  @Test
-  public void getAll() {
-    putSomeClient();
-    putSomeClient();
+	@Test
+	public void getAll() {
+		putSomeClient();
+		putSomeClient();
 
-    ClientResponse response = webResource
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .get(ClientResponse.class);
-    assertEquals(200, response.getStatus());
-    assertTrue(response.getEntity(Client[].class).length > 1);
-  }
+		ClientResponse response = webResource.header("Authorization",
+				authorizationBearer(ACCESS_TOKEN)).get(ClientResponse.class);
+		assertEquals(200, response.getStatus());
+		assertTrue(response.getEntity(Client[].class).length > 1);
+	}
 
+	@Test
+	public void get() {
+		Client c = putSomeClient();
 
-  @Test
-  public void get() {
-    Client c = putSomeClient();
+		final Client returnedFromGet = webResource
+				.path(String.valueOf(c.getId()))
+				.header("Authorization", authorizationBearer(ACCESS_TOKEN))
+				.get(Client.class);
 
-    final Client returnedFromGet = webResource
-        .path(String.valueOf(c.getId()))
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .get(Client.class);
+		assertEquals(c.getId(), returnedFromGet.getId());
+		assertEquals(c.getAttributes(), returnedFromGet.getAttributes());
+	}
 
-    assertEquals(c.getId(), returnedFromGet.getId());
-    assertEquals(c.getAttributes(), returnedFromGet.getAttributes());
-  }
+	@Test
+	public void put() {
+		Client c = buildClient();
+		Client putResult = webResource.header("Authorization",
+				authorizationBearer(ACCESS_TOKEN)).put(Client.class, c);
+		assertThat(
+				"Server should override provided secret with a generated one",
+				putResult.getSecret(), not(equalTo(c.getSecret())));
 
-  @Test
-  public void put() {
-    Client c = buildClient();
-    Client putResult = webResource
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .put(Client.class, c);
-    assertThat("Server should override provided secret with a generated one",
-        putResult.getSecret(),not(equalTo(c.getSecret())));
+		assertNotNull(putResult.getId());
 
-    assertNotNull(putResult.getId());
+		assertEquals(c.getAttributes(), putResult.getAttributes());
+	}
 
-    assertEquals(c.getAttributes(), putResult.getAttributes());
-  }
+	@Test
+	public void putInvalidScopes() {
+		Client c = buildClient();
+		c.setScopes(Arrays.asList("invalidScope", "read", "write"));
+		ClientResponse clientResponse = webResource.header("Authorization",
+				authorizationBearer(ACCESS_TOKEN)).put(ClientResponse.class, c);
+		assertThat(
+				"Server should not accept a client with scopes that are not a subset of the resourceServers scope",
+				clientResponse.getStatus(), equalTo(400));
+		final ValidationErrorResponse validationErrorResponse = clientResponse
+				.getEntity(ValidationErrorResponse.class);
+		assertThat(validationErrorResponse.getViolations().size(), equalTo(1));
+		assertThat(
+				validationErrorResponse.getViolations().get(0),
+				containsString("Client should only contain scopes that its resource server defines"));
+	}
 
-  @Test
-  public void putInvalidScopes() {
-    Client c = buildClient();
-    c.setScopes(Arrays.asList("invalidScope", "read", "write"));
-    ClientResponse clientResponse = webResource
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .put(ClientResponse.class, c);
-    assertThat("Server should not accept a client with scopes that are not a subset of the resourceServers scope",
-        clientResponse.getStatus(), equalTo(400));
-    final ValidationErrorResponse validationErrorResponse = clientResponse.getEntity(ValidationErrorResponse.class);
-    assertThat(validationErrorResponse.getViolations().size(), equalTo(1));
-    assertThat(validationErrorResponse.getViolations().get(0), containsString("Client should only contain scopes that its resource server defines"));
-  }
+	@Test
+	public void post() {
+		Client originalClient = putSomeClient();
 
-  @Test
-  public void post() {
-    Client originalClient = putSomeClient();
+		final String newDescription = "new description";
+		originalClient.setDescription(newDescription);
+		Client postResult = webResource
+				.path(String.valueOf(originalClient.getId()))
+				.header("Authorization", authorizationBearer(ACCESS_TOKEN))
+				.post(Client.class, originalClient);
+		assertEquals(newDescription, postResult.getDescription());
+	}
 
+	@Test
+	public void delete() {
+		Client c = putSomeClient();
+		String id = String.valueOf(c.getId());
+		ClientResponse deleteResponse = webResource.path(id)
+				.header("Authorization", authorizationBearer(ACCESS_TOKEN))
+				.delete(ClientResponse.class);
+		assertEquals(204, deleteResponse.getStatus());
 
-    final String newDescription = "new description";
-    originalClient.setDescription(newDescription);
-    Client postResult = webResource
-        .path(String.valueOf(originalClient.getId()))
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .post(Client.class, originalClient);
-    assertEquals(newDescription, postResult.getDescription());
-  }
+		ClientResponse getResponse = webResource.path(id)
+				.header("Authorization", authorizationBearer(ACCESS_TOKEN))
+				.get(ClientResponse.class);
+		assertEquals(404, getResponse.getStatus());
+	}
 
-  @Test
-  public void delete() {
-    Client c = putSomeClient();
-    String id = String.valueOf(c.getId());
-    ClientResponse deleteResponse = webResource
-        .path(id)
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .delete(ClientResponse.class);
-    assertEquals(204, deleteResponse.getStatus());
+	private Client buildClient() {
+		Client c = new Client();
+		String r = UUID.randomUUID().toString();
+		c.setClientId(r);
+		c.setContactEmail("contact@example.com");
+		c.setContactName("contact name");
+		c.setName(r);
+		c.setScopes(Arrays.asList("read"));
+		c.setSecret(r);
+		c.setDescription("Some description");
+		final HashMap<String, String> attributes = new HashMap<String, String>();
+		attributes.put("myKey", "myValue");
+		attributes.put("myKey2", "myValue2");
+		attributes.put("myKey3", "myValue3");
+		c.setAttributes(attributes);
+		return c;
+	}
 
-    ClientResponse getResponse = webResource
-        .path(id)
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .get(ClientResponse.class);
-    assertEquals(404, getResponse.getStatus());
-  }
-
-  private Client buildClient() {
-    Client c = new Client();
-    String r = UUID.randomUUID().toString();
-    c.setClientId(r);
-    c.setContactEmail("contact@example.com");
-    c.setContactName("contact name");
-    c.setName(r);
-    c.setScopes(Arrays.asList("read"));
-    c.setSecret(r);
-    c.setDescription("Some description");
-    final HashMap<String, String> attributes = new HashMap<String, String>();
-    attributes.put("myKey", "myValue");
-    attributes.put("myKey2", "myValue2");
-    attributes.put("myKey3", "myValue3");
-    c.setAttributes(attributes);
-    return c;
-  }
-
-  private Client putSomeClient() {
-    Client c = buildClient();
-    return webResource
-        .header("Authorization", authorizationBearer(ACCESS_TOKEN))
-        .put(Client.class, c);
-  }
+	private Client putSomeClient() {
+		Client c = buildClient();
+		return webResource.header("Authorization",
+				authorizationBearer(ACCESS_TOKEN)).put(Client.class, c);
+	}
 
 }

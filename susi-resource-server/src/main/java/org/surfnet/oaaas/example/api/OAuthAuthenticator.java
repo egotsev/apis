@@ -37,45 +37,53 @@ import java.io.IOException;
  * {@link Authenticator} that ask the Authorization Server to check
  * 
  */
-public class OAuthAuthenticator implements Authenticator<String, AuthenticatedPrincipal> {
+public class OAuthAuthenticator implements
+		Authenticator<String, AuthenticatedPrincipal> {
 
-  private String authorizationServerUrl;
-  private String authorizationValue;
+	private String authorizationServerUrl;
+	private String authorizationValue;
 
-  private Client client = Client.create();
-  private static ObjectMapper mapper = new ObjectMapperProvider().getContext(ObjectMapper.class);
+	private Client client = Client.create();
+	private static ObjectMapper mapper = new ObjectMapperProvider()
+			.getContext(ObjectMapper.class);
 
-  static {
-    mapper.disableDefaultTyping();
-  }
+	static {
+		mapper.disableDefaultTyping();
+	}
 
-  /**
-   * @param configuration
-   */
-  public OAuthAuthenticator(UniversityFooConfiguration configuration) {
-    AuthConfiguration auth = configuration.getAuth();
-    authorizationServerUrl = auth.getAuthorizationServerUrl();
-    authorizationValue = "Basic ".concat( new String(Base64.encodeBase64(auth.getKey().concat(":").concat(auth.getSecret()).getBytes())));
-  }
+	/**
+	 * @param configuration
+	 */
+	public OAuthAuthenticator(UniversityFooConfiguration configuration) {
+		AuthConfiguration auth = configuration.getAuth();
+		authorizationServerUrl = auth.getAuthorizationServerUrl();
+		authorizationValue = "Basic ".concat(new String(Base64
+				.encodeBase64(auth.getKey().concat(":")
+						.concat(auth.getSecret()).getBytes())));
+	}
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.yammer.dropwizard.auth.Authenticator#authenticate(java.lang.Object)
-   */
-  @Override
-  public Optional<AuthenticatedPrincipal> authenticate(String accessToken) throws AuthenticationException {
-    String json = client
-        .resource(String.format(authorizationServerUrl.concat("?access_token=%s"), accessToken))
-        .header(HttpHeaders.AUTHORIZATION, authorizationValue).accept("application/json")
-        .get(String.class);
-    final VerifyTokenResponse response;
-    try {
-      response = mapper.readValue(json, VerifyTokenResponse.class);
-    } catch (IOException e) {
-      throw new AuthenticationException("Could not parse JSON: "+ json, e);
-    }
-    return Optional.fromNullable(response.getPrincipal());
-  }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.yammer.dropwizard.auth.Authenticator#authenticate(java.lang.Object)
+	 */
+	@Override
+	public Optional<AuthenticatedPrincipal> authenticate(String accessToken)
+			throws AuthenticationException {
+		String json = client
+				.resource(
+						String.format(authorizationServerUrl
+								.concat("?access_token=%s"), accessToken))
+				.header(HttpHeaders.AUTHORIZATION, authorizationValue)
+				.accept("application/json").get(String.class);
+		final VerifyTokenResponse response;
+		try {
+			response = mapper.readValue(json, VerifyTokenResponse.class);
+		} catch (IOException e) {
+			throw new AuthenticationException("Could not parse JSON: " + json,
+					e);
+		}
+		return Optional.fromNullable(response.getPrincipal());
+	}
 }

@@ -41,24 +41,25 @@ import org.surfnet.oaaas.web.ClientController;
 @EnableWebMvc
 public class SpringConfiguration extends WebMvcConfigurerAdapter {
 
-  @Inject
-  private Environment env;
-  
-  @Bean
-  public ViewResolver viewResolver() {
-    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-    viewResolver.setPrefix("/WEB-INF/jsp/");
-    viewResolver.setSuffix(".jsp");
-    return viewResolver;
-  }
-  
-  @Bean
-  public ClientController clientController() {
-    return new ClientController(env);
-  }
+	@Inject
+	private Environment env;
 
-  @Override
-  public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-    configurer.enable();
-  }
+	@Bean
+	public ViewResolver viewResolver() {
+		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+		viewResolver.setPrefix("/WEB-INF/jsp/");
+		viewResolver.setSuffix(".jsp");
+		return viewResolver;
+	}
+
+	@Bean
+	public ClientController clientController() {
+		return new ClientController(env);
+	}
+
+	@Override
+	public void configureDefaultServletHandling(
+			DefaultServletHandlerConfigurer configurer) {
+		configurer.enable();
+	}
 }

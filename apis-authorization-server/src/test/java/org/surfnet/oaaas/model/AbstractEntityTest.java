@@ -30,12 +30,12 @@ import org.junit.Test;
  * 
  */
 public abstract class AbstractEntityTest {
-  
-  protected static Validator validator;
 
-  @BeforeClass
-  public static void setUp() {
-    ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-    validator = factory.getValidator();
-  }
+	protected static Validator validator;
+
+	@BeforeClass
+	public static void setUp() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		validator = factory.getValidator();
+	}
 }

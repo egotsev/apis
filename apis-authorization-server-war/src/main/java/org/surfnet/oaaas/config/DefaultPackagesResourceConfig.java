@@ -37,34 +37,38 @@ import org.surfnet.oaaas.resource.VerifyResource;
  * 
  */
 public class DefaultPackagesResourceConfig extends PackagesResourceConfig {
-  
-  /**
-   * We need to "fool" the initialization process with at least one package name. 
-   */
-  public DefaultPackagesResourceConfig() {
-    this(Class.class.getPackage().getName());
-  }
-  public DefaultPackagesResourceConfig(String... packages) {
-    super(packages);
-  }
 
-  @Override
-  public void init(Scanner scanner) {
-    Set<Class<?>> classes = getClasses();
-    /*
-     * The actual implementation of the OAuth spec
-     */
-    classes.add(TokenResource.class);
-    /*
-     * Responsible for the (only) communication between Resource Servers and the Authorization Server for validation of Tokens
-     */
-    classes.add(VerifyResource.class);
-    /*
-     * The Resource Server part of the Authorization Server used by the JavaScript admin client
-     */
-    classes.add(ClientResource.class);
-    classes.add(ResourceServerResource.class);
-    classes.add(AccessTokenResource.class);
+	/**
+	 * We need to "fool" the initialization process with at least one package
+	 * name.
+	 */
+	public DefaultPackagesResourceConfig() {
+		this(Class.class.getPackage().getName());
+	}
 
-  }
+	public DefaultPackagesResourceConfig(String... packages) {
+		super(packages);
+	}
+
+	@Override
+	public void init(Scanner scanner) {
+		Set<Class<?>> classes = getClasses();
+		/*
+		 * The actual implementation of the OAuth spec
+		 */
+		classes.add(TokenResource.class);
+		/*
+		 * Responsible for the (only) communication between Resource Servers and
+		 * the Authorization Server for validation of Tokens
+		 */
+		classes.add(VerifyResource.class);
+		/*
+		 * The Resource Server part of the Authorization Server used by the
+		 * JavaScript admin client
+		 */
+		classes.add(ClientResource.class);
+		classes.add(ResourceServerResource.class);
+		classes.add(AccessTokenResource.class);
+
+	}
 }

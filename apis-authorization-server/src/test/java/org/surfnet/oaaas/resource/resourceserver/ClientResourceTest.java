@@ -48,75 +48,78 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ClientResourceTest {
-  private static final Logger LOG = LoggerFactory.getLogger(ClientResourceTest.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(ClientResourceTest.class);
 
-  @Mock
-  private ClientRepository clientRepository;
+	@Mock
+	private ClientRepository clientRepository;
 
-  @Mock
-  private ResourceServerRepository resourceServerRepository;
+	@Mock
+	private ResourceServerRepository resourceServerRepository;
 
-  @Mock
-  private Validator validator;
+	@Mock
+	private Validator validator;
 
-  @InjectMocks
-  private ClientResource clientResource;
+	@InjectMocks
+	private ClientResource clientResource;
 
-  MockHttpServletRequest request = new MockHttpServletRequest();
+	MockHttpServletRequest request = new MockHttpServletRequest();
 
-  @Before
-  public void setup() {
-    clientResource = new ClientResource();
-    MockitoAnnotations.initMocks(this);
-  }
+	@Before
+	public void setup() {
+		clientResource = new ClientResource();
+		MockitoAnnotations.initMocks(this);
+	}
 
-  @Test
-  public void sanitize() {
-    String sanitized = clientResource.sanitizeClientName("ab()();'$&*  ---  %(&^*c123");
-    assertEquals("ab-------c123", sanitized);
+	@Test
+	public void sanitize() {
+		String sanitized = clientResource
+				.sanitizeClientName("ab()();'$&*  ---  %(&^*c123");
+		assertEquals("ab-------c123", sanitized);
 
-    sanitized = clientResource.sanitizeClientName("some nice client name");
-    assertEquals("some-nice-client-name", sanitized);
+		sanitized = clientResource.sanitizeClientName("some nice client name");
+		assertEquals("some-nice-client-name", sanitized);
 
-    sanitized = clientResource.sanitizeClientName("Some Nice Client-Name *%^$#''§`~");
-    assertEquals("some-nice-client-name-", sanitized);
-  }
+		sanitized = clientResource
+				.sanitizeClientName("Some Nice Client-Name *%^$#''§`~");
+		assertEquals("some-nice-client-name-", sanitized);
+	}
 
-  @Test
-  public void uniqueClientId() {
-    final Client existingClient = new Client();
-    when(clientRepository.findByClientId(anyString())).thenReturn(
-        existingClient,
-        existingClient,
-        existingClient,
-        existingClient,
-        existingClient,
-        null);
-    Client newClient = new Client();
-    newClient.setName("myname");
-    String clientId = clientResource.generateClientId(newClient);
-    LOG.debug("client id generated: " + clientId);
-    // 5 existing clients, this one should be number 6.
-    assertEquals("myname6", clientId);
-  }
+	@Test
+	public void uniqueClientId() {
+		final Client existingClient = new Client();
+		when(clientRepository.findByClientId(anyString())).thenReturn(
+				existingClient, existingClient, existingClient, existingClient,
+				existingClient, null);
+		Client newClient = new Client();
+		newClient.setName("myname");
+		String clientId = clientResource.generateClientId(newClient);
+		LOG.debug("client id generated: " + clientId);
+		// 5 existing clients, this one should be number 6.
+		assertEquals("myname6", clientId);
+	}
 
-  @Test
-  public void scopesShouldBeSubsetOfResourceServerScopes() {
+	@Test
+	public void scopesShouldBeSubsetOfResourceServerScopes() {
 
-    Client client = new Client();
-    request.setAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE, new VerifyTokenResponse("",
-        new ArrayList<String>(), new AuthenticatedPrincipal("user"), 0L));
-    client.setScopes(Arrays.asList("Some", "arbitrary", "set"));
-    client.setName("clientname");
-    ResourceServer resourceServer = new ResourceServer();
-    resourceServer.setScopes(Arrays.asList("read", "update", "delete"));
-    when(resourceServerRepository.findByIdAndOwner(1L, "user")).thenReturn(resourceServer);
+		Client client = new Client();
+		request.setAttribute(AuthorizationServerFilter.VERIFY_TOKEN_RESPONSE,
+				new VerifyTokenResponse("", new ArrayList<String>(),
+						new AuthenticatedPrincipal("user"), 0L));
+		client.setScopes(Arrays.asList("Some", "arbitrary", "set"));
+		client.setName("clientname");
+		ResourceServer resourceServer = new ResourceServer();
+		resourceServer.setScopes(Arrays.asList("read", "update", "delete"));
+		when(resourceServerRepository.findByIdAndOwner(1L, "user")).thenReturn(
+				resourceServer);
 
-    final ConstraintViolation<Client> violation = (ConstraintViolation<Client>) mock(ConstraintViolation.class);
-    Set<ConstraintViolation<Client>> violations = Collections.singleton(violation);
-    when(validator.validate(client)).thenReturn(violations);
-    final Response response = clientResource.put(request, 1L, client);
-    assertEquals(400, response.getStatus());
-    assertEquals("invalid_scope", ((ErrorResponse) response.getEntity()).getError());
-  }
+		final ConstraintViolation<Client> violation = (ConstraintViolation<Client>) mock(ConstraintViolation.class);
+		Set<ConstraintViolation<Client>> violations = Collections
+				.singleton(violation);
+		when(validator.validate(client)).thenReturn(violations);
+		final Response response = clientResource.put(request, 1L, client);
+		assertEquals(400, response.getStatus());
+		assertEquals("invalid_scope",
+				((ErrorResponse) response.getEntity()).getError());
+	}
 }

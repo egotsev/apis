@@ -52,62 +52,70 @@ import static org.surfnet.oaaas.auth.OAuth2Validator.ValidationResponse.VALID;
 
 public class TokenResourceTest {
 
-  @InjectMocks
-  private TokenResource tokenResource;
+	@InjectMocks
+	private TokenResource tokenResource;
 
-  @Mock
-  private HttpServletRequest request;
+	@Mock
+	private HttpServletRequest request;
 
-  @Mock
-  private AuthorizationRequestRepository authorizationRequestRepository;
+	@Mock
+	private AuthorizationRequestRepository authorizationRequestRepository;
 
-  @Mock
-  private OAuth2Validator oAuth2Validator;
+	@Mock
+	private OAuth2Validator oAuth2Validator;
 
-  @Mock
-  private AccessTokenRepository accessTokenRepository;
+	@Mock
+	private AccessTokenRepository accessTokenRepository;
 
-  @Before
-  public void before() {
-    MockitoAnnotations.initMocks(this);
-  }
+	@Before
+	public void before() {
+		MockitoAnnotations.initMocks(this);
+	}
 
-  @Test
-  public void testPrincipalDisplayName() {
-    AuthorizationRequest authRequest = createAuthRequest(OAuth2Validator.IMPLICIT_GRANT_RESPONSE_TYPE);
-    authRequest.getClient().setIncludePrincipal(true);
+	@Test
+	public void testPrincipalDisplayName() {
+		AuthorizationRequest authRequest = createAuthRequest(OAuth2Validator.IMPLICIT_GRANT_RESPONSE_TYPE);
+		authRequest.getClient().setIncludePrincipal(true);
 
-    AccessToken accessToken = createAccessToken();
+		AccessToken accessToken = createAccessToken();
 
-    when(authorizationRequestRepository.findByAuthState("auth_state")).thenReturn(authRequest);
-    when(request.getAttribute(AbstractAuthenticator.AUTH_STATE)).thenReturn("auth_state");
-    when(request.getAttribute(AbstractUserConsentHandler.GRANTED_SCOPES)).thenReturn(accessToken.getScopes().toArray(new String[]{}));
-    when(accessTokenRepository.save((AccessToken) any())).thenReturn(accessToken);
+		when(authorizationRequestRepository.findByAuthState("auth_state"))
+				.thenReturn(authRequest);
+		when(request.getAttribute(AbstractAuthenticator.AUTH_STATE))
+				.thenReturn("auth_state");
+		when(request.getAttribute(AbstractUserConsentHandler.GRANTED_SCOPES))
+				.thenReturn(accessToken.getScopes().toArray(new String[] {}));
+		when(accessTokenRepository.save((AccessToken) any())).thenReturn(
+				accessToken);
 
-    URI uri = (URI) tokenResource.authorizeCallback(request).getMetadata().get("Location").get(0);
+		URI uri = (URI) tokenResource.authorizeCallback(request).getMetadata()
+				.get("Location").get(0);
 
-    assertEquals("http://localhost:8080#access_token=ABCDEF&token_type=bearer&expires_in=123456&scope=read,write&state=important&principal=sammy%20sammy", uri.toString());
-    assertTrue(uri.getFragment().endsWith("principal=" + authRequest.getPrincipal().getDisplayName()));
-  }
+		assertEquals(
+				"http://localhost:8080#access_token=ABCDEF&token_type=bearer&expires_in=123456&scope=read,write&state=important&principal=sammy%20sammy",
+				uri.toString());
+		assertTrue(uri.getFragment().endsWith(
+				"principal=" + authRequest.getPrincipal().getDisplayName()));
+	}
 
-  private AccessToken createAccessToken() {
-    AccessToken token = new AccessToken();
-    token.setToken("ABCDEF");
-    token.setExpires(123456);
-    token.setScopes(Arrays.asList(new String[]{"read","write"}));
-    return token;
-  }
+	private AccessToken createAccessToken() {
+		AccessToken token = new AccessToken();
+		token.setToken("ABCDEF");
+		token.setExpires(123456);
+		token.setScopes(Arrays.asList(new String[] { "read", "write" }));
+		return token;
+	}
 
-
-  private AuthorizationRequest createAuthRequest(String implicitGrantResponseType) {
-    AuthorizationRequest authRequest = new AuthorizationRequest();
-    Client client = new Client();
-    authRequest.setClient(client);
-    authRequest.setResponseType(implicitGrantResponseType);
-    authRequest.setPrincipal(new AuthenticatedPrincipal("sammy sammy"));
-    authRequest.setRedirectUri("http://localhost:8080");
-    authRequest.setState("important");
-    return authRequest;
-  }
+	private AuthorizationRequest createAuthRequest(
+			String implicitGrantResponseType) {
+		AuthorizationRequest authRequest = new AuthorizationRequest();
+		Client client = new Client();
+		authRequest.setClient(client);
+		authRequest.setResponseType(implicitGrantResponseType);
+		authRequest.setPrincipal(new AuthenticatedPrincipal("sammy sammy"));
+		authRequest.setRedirectUri("http://localhost:8080");
+		authRequest.setState("important");
+		return authRequest;
+	}
 
 }

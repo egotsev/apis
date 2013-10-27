@@ -51,6 +51,8 @@ import com.yammer.metrics.annotation.Timed;
 public class UniversityResource {
 
 	private static final String UNIVERSITY_FOO_JSON = "university-foo-data.json";
+	private static final String FACULTY_NUMBER = "FACULTY_NUMBER";
+	private static final String GROUP_STUDENT = "student";
 
 	private final ObjectMapper objectMapper = new ObjectMapper().enable(
 			DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
@@ -83,6 +85,13 @@ public class UniversityResource {
 	@Timed
 	@Path("/students")
 	public Response getAllStudents(@Auth Principal principal) {
+		AuthenticatedPrincipal authPrincipal = null;
+		if (principal instanceof AuthenticatedPrincipal) {
+			authPrincipal = (AuthenticatedPrincipal) principal;
+		}
+		if (authPrincipal != null && authPrincipal.getGroups().contains(GROUP_STUDENT)) {
+			return Response.status(Response.Status.FORBIDDEN).build();
+		}
 		return Response.ok(university.getStudents()).build();
 	}
 
@@ -91,15 +100,20 @@ public class UniversityResource {
 	@Path("/students/{facultyNumber}")
 	public Response getStudentById(@Auth Principal principal,
 			@PathParam("facultyNumber") String facNumber) {
-		AuthenticatedPrincipal authPrincipal;
+		AuthenticatedPrincipal authPrincipal = null;
 		if (principal instanceof AuthenticatedPrincipal) {
 			authPrincipal = (AuthenticatedPrincipal) principal;
 		}
-		//TODO future development
-		List<Student> students = university.getStudents();
-		for (Student student : students) {
-			if (student.getFacultyNumber().equals(facNumber)) {
-				return Response.ok(student).build();
+		if (authPrincipal != null && authPrincipal.getGroups().contains(GROUP_STUDENT)) {
+			if (authPrincipal.getAttribute(FACULTY_NUMBER) == facNumber) {
+				List<Student> students = university.getStudents();
+				for (Student student : students) {
+					if (student.getFacultyNumber().equals(facNumber)) {
+						return Response.ok(student).build();
+					}
+				}
+			} else {
+				return Response.status(Response.Status.FORBIDDEN).build();
 			}
 		}
 		return Response.status(Response.Status.NOT_FOUND).build();
@@ -117,11 +131,6 @@ public class UniversityResource {
 	@Path("/courses/{courseId}")
 	public Response getCourseById(@Auth Principal principal,
 			@PathParam("courseId") String id) {
-		AuthenticatedPrincipal authPrincipal;
-		if (principal instanceof AuthenticatedPrincipal) {
-			authPrincipal = (AuthenticatedPrincipal) principal;
-		}
-		//TODO future development
 		List<Course> courses = university.getCourses();
 		for (Course course : courses) {
 			if (course.getId().equals(id)) {
@@ -143,11 +152,6 @@ public class UniversityResource {
 	@Path("/teachers/{teacherId}")
 	public Response getTeacherById(@Auth Principal principal,
 			@PathParam("id") long id) {
-		AuthenticatedPrincipal authPrincipal;
-		if (principal instanceof AuthenticatedPrincipal) {
-			authPrincipal = (AuthenticatedPrincipal) principal;
-		}
-		//TODO future development
 		List<Teacher> teachers = university.getTeachers();
 		for (Teacher teacher : teachers) {
 			if (teacher.getTeacherId().equals(id)) {

@@ -1,2 +1,5 @@
-<div>
+<div id="index">
+    <a href="<% susi_oauth_url %>">
+        <img src="/images/sofia-university-oauth.jpg" />
+    </a>
 </div>

@@ -22,7 +22,7 @@
 
 	<div class="head">
 		<img
-			src="${pageContext.request.contextPath}/client/img/surf-oauth.png" />
+			src="${pageContext.request.contextPath}/client/img/susi.png" />
 	</div>
 
 	<div class="main">

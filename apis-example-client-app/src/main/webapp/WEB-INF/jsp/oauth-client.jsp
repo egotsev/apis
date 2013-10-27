@@ -48,7 +48,7 @@
 </head>
 <body>
     <div class="head">
-      <img src="<c:url value="/assets/img/surf-oauth.png"/>" />
+      <img src="<c:url value="/assets/img/susi.png"/>" />
     </div>
     <div class="subcontent">
 	<div class="row">

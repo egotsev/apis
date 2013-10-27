@@ -85,13 +85,24 @@ get '/susi_oauth' => sub {
     if ($data->{error}) {
         return template('oauth_error', {description => $data->{error_description}});
     } else {
-        session(access_token => $data->{access_token}, token_type => $data->{token_type});
-        redirect '/dashboard'
+        session(access_token => $data->{access_token});
+        session(token_type => $data->{token_type});
+        redirect '/dashboard';
     }
 };
 
 get '/dashboard' => sub {
-    debug session;
+    my $ua = LWP::UserAgent->new();
+
+    my $auth = session->{token_type} . ' ' . session->{access_token};
+    $ua->default_header('Authorization' => $auth);
+
+    my $response = $ua->get('http://localhost:8180/v1/api/courses');
+
+    my $result = $response->decoded_content();
+
+    debug $result;
+
     template 'dashboard';
 };
 

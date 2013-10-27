@@ -9,7 +9,7 @@ oauth:
   token_url: 'http://localhost:8080/oauth2/token'
   response_type: 'code'
   client_id: 'sample-client'
-  client_secret: '330bcb42-7447-4133-bcac-d55c5e1b506e'
+  client_secret: '75c35fbb-8294-4f33-9e34-b22672e262fc'
   redirect_uri: 'http://localhost:3000/susi_oauth'
   scopes:
     - 'read'

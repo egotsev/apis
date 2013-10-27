@@ -7,9 +7,9 @@ logging:
   loggers:
     "org.surfnet": debug
     "openjpa": error
-    
+
 auth:
   authorizationServerUrl: http://localhost:8080/v1/tokeninfo
-  secret: 58b749f7-acb3-44b7-a38c-53d5ad740cf6
-  key: university-foo
-   
+  secret: 7d37480a-4e2b-4172-97fc-00ae1a6da76b
+  key: 9bcf5554-4b8b-46e4-8f5d-3c819fae5539
+

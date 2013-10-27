@@ -44,6 +44,7 @@ get '/' => sub {
     $susi_oauth_url->query_param(client_id => $oauth->{client_id});
     $susi_oauth_url->query_param(redirect_uri => $oauth->{redirect_uri});
     $susi_oauth_url->query_param(grant_type => 'authorization_code');
+    $susi_oauth_url->query_param(scope => @{$oauth->{scopes} || []});
 
     template 'index', {susi_oauth_url => $susi_oauth_url->as_string};
 };
@@ -70,11 +71,14 @@ get '/susi_oauth' => sub {
         {
             grant_type => 'authorization_code',
             redirect_uri => $oauth->{redirect_uri},
-            code => $code
+            code => $code,
+            scope => @{$oauth->{scopes} || []}
         }
     );
 
     my $result = $response->decoded_content();
+
+    debug $result;
 
     my $data = decode_json($result);
 

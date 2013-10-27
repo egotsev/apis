@@ -1,1 +1,3 @@
-Hello
+<pre>
+    <% sample_data %>
+</pre>

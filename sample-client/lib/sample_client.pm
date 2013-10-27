@@ -10,6 +10,7 @@ use List::MoreUtils qw(any);
 use LWP::UserAgent;
 use MIME::Base64 qw(encode_base64);
 use JSON qw(decode_json);
+use utf8;
 
 our $VERSION = '0.1';
 
@@ -101,9 +102,9 @@ get '/dashboard' => sub {
 
     my $result = $response->decoded_content();
 
-    debug $result;
+    utf8::decode($result);
 
-    template 'dashboard';
+    template 'dashboard', {sample_data => $result};
 };
 
 true;

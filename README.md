@@ -1,7 +1,7 @@
 OAuth4Susi
 ===
 OAuth4Susi is an OAuth 2.0 Authorization Server currently for providing oauth
-for [the susi parser](https://github.com/NikolaDimitroff/SusiParser)
+for [the susi parser](https://github.com/NikolaDimitroff/SusiParser).
 It is based on [apis](https://github.com/OpenConextApps/apis).
 
 ## Getting Started
